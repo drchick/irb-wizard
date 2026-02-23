@@ -597,3 +597,482 @@ function buildVulnerableSection(subjects) {
   if (subjects.includesUBStudents) parts.push(`UB STUDENTS/EMPLOYEES: This study recruits from populations with a potential power relationship to the researcher. Safeguards to ensure voluntary participation: [describe safeguards].`);
   return parts.length > 0 ? parts.join('\n\n') : 'No vulnerable populations will be included in this study.';
 }
+
+// ─── Parental / Guardian Permission Form ──────────────────────────────────────
+export function generateParentalPermissionForm(formData) {
+  const { researcher, study, subjects, procedures, risks, data, consent } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+
+  return `UNIVERSITY OF BRIDGEPORT
+INSTITUTIONAL REVIEW BOARD
+PARENTAL / GUARDIAN PERMISSION FORM
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STUDY TITLE: ${study.title || '[Study Title]'}
+PRINCIPAL INVESTIGATOR: ${piName}
+  Department: ${researcher.piDepartment || '[Department]'}
+  Email:      ${researcher.piEmail || '[Email]'}
+  Phone:      ${researcher.piPhone || '[Phone]'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are being asked to give permission for your child, [CHILD'S NAME], to take part in a research study at the University of Bridgeport conducted by ${piName}. Participation is completely voluntary.
+
+Your child is being asked to participate because ${subjects.subjectPopulation ? subjects.subjectPopulation.toLowerCase() : '[explain eligibility]'}.
+
+PURPOSE OF THE STUDY
+${study.studyPurpose || '[Describe the study purpose in plain language.]'}
+
+WHAT WILL MY CHILD BE ASKED TO DO?
+If you give permission, your child will: ${buildProceduresSummary(procedures)}.
+Estimated time: ${duration}.
+
+${procedures.involvesDeception ? '[NOTE: Some study details will be explained to your child after participation.]' : ''}
+
+RISKS
+${risks.psychologicalRisks || risks.physicalRisks || 'This research involves no more than minimal risk — no greater than activities your child encounters in daily life.'}
+
+Steps to minimize risk: ${risks.riskMinimization || '[Describe safeguards.]'}
+
+BENEFITS
+${risks.directBenefits ? risks.directBenefitDescription || '[Describe benefits]' : 'Your child may not directly benefit from participating.'}
+Benefits to others: ${risks.societalBenefits || '[Describe]'}
+
+CONFIDENTIALITY
+${data.anonymousData ? 'Responses are anonymous. No identifying information about your child will be collected.' :
+data.codedData ? `Your child's data will be coded. The key linking identity to data will be stored separately. Access limited to: ${data.dataAccessList || '[authorized personnel]'}.` :
+`Your child's information will be kept confidential. Access limited to: ${data.dataAccessList || '[authorized personnel]'}.`}
+
+COMPENSATION
+${subjects.compensationOffered ? subjects.compensationDetails || '[Describe compensation]' : 'There is no compensation for participation.'}
+
+VOLUNTARY PARTICIPATION
+Your child's participation is completely voluntary. You may refuse or withdraw your child at any time without penalty. This will not affect your child's standing at the University of Bridgeport.
+
+CHILD ASSENT
+${consent.assentRequired ? 'In addition to your permission, your child\'s assent will be obtained before participation begins.' : 'Because of your child\'s age, a separate assent form is not required.'}
+
+CONTACTS AND QUESTIONS
+Study questions:  ${piName} — ${researcher.piEmail || '[email]'} — ${researcher.piPhone || '[phone]'}
+Rights questions: UB IRB Administrator — irb@bridgeport.edu
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERMISSION SIGNATURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+By signing below, I confirm I have read this form, had the chance to ask questions, and give permission for my child to participate.
+
+Parent/Guardian Signature: _________________________ Date: ___________
+Printed Name: _______________________________
+Child's Name: _______________________________
+Child's Date of Birth: _______________
+`;
+}
+
+// ─── Child Assent Form ────────────────────────────────────────────────────────
+export function generateChildAssentForm(formData) {
+  const { researcher, study, subjects, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+  const ageRange = subjects.minorAgeRange || `${subjects.minAge || '7'}–17`;
+
+  return `UNIVERSITY OF BRIDGEPORT
+INSTITUTIONAL REVIEW BOARD
+CHILD ASSENT FORM
+
+For children ages ${ageRange}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STUDY: ${study.title || '[Study Title]'}
+RESEARCHER: ${piName}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Hi! We want to tell you about a research study and ask if you want to be in it.
+A grown-up will explain this to you and answer your questions.
+
+WHAT IS THIS STUDY ABOUT?
+A researcher named ${piName} wants to learn about ${study.studyPurpose ? study.studyPurpose.toLowerCase().replace(/^(this study|we|this research)( aims to| seeks to| will| is designed to)?/i, '').trim() : '[simple description of the study topic in child-friendly language]'}.
+
+WHY AM I BEING ASKED?
+You are being asked because ${subjects.subjectPopulation ? subjects.subjectPopulation.toLowerCase() : '[explain in child-friendly terms]'}.
+
+WHAT WILL I DO?
+If you join the study, you will: ${buildProceduresSummary(procedures)}.
+This will take about ${duration}.
+${(procedures.methodTypes || []).includes('survey') ? '\nYou will answer some questions. You can skip any question you do not want to answer.' : ''}
+${(procedures.methodTypes || []).includes('interview') ? `\nSomeone will ask you questions about ${procedures.interviewTopics || '[topics]'}. There are no right or wrong answers.` : ''}
+${procedures.involvesBloodDraw ? '\nA small amount of blood will be taken from your arm. You may feel a small pinch. Tell the researcher if you feel uncomfortable — we can stop.' : ''}
+
+WILL IT HURT?
+${procedures.involvesBloodDraw ? 'You may feel a small pinch during the blood draw.' : 'No, this study will not hurt.'}
+
+DOES ANYONE ELSE HAVE TO KNOW WHAT I SAY?
+We will keep what you tell us private. We will not tell your parents, teachers, or friends, unless you are in danger.
+
+DO I HAVE TO DO THIS?
+NO! You do not have to be in this study.
+• No one will be mad at you if you say no.
+• Even if you say yes today, you can change your mind and stop at any time.
+• Nothing bad will happen if you decide not to participate or if you stop.
+
+DO YOU HAVE QUESTIONS?
+You can ask questions any time! Talk to ${piName} or a trusted adult.
+Researcher's email: ${researcher.piEmail || '[email]'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR CHOICE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Circle one:   YES, I want to be in this study.     NO, I do not want to be in this study.
+
+Child's Signature / Printed Name: _________________________ Date: ___________
+
+Researcher Signature: _________________________ Date: ___________
+
+Parent/Guardian Witness: _________________________ Date: ___________
+`;
+}
+
+// ─── Debriefing Script ────────────────────────────────────────────────────────
+export function generateDebriefingScript(formData) {
+  const { researcher, study, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+
+  return `UNIVERSITY OF BRIDGEPORT — IRB
+DEBRIEFING SCRIPT
+(Read aloud to each participant IMMEDIATELY after participation)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STUDY: ${study.title || '[Study Title]'}
+RESEARCHER: ${piName}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1 — THANK THE PARTICIPANT
+"Thank you for participating in this study. Before you leave, I need to share some important information with you."
+
+STEP 2 — REVEAL THE TRUE PURPOSE
+"The actual purpose of this study is: ${study.studyPurpose || '[DESCRIBE TRUE STUDY PURPOSE]'}. We were unable to tell you this beforehand because ${procedures.deceptionDescription || '[EXPLAIN WHY DECEPTION WAS NECESSARY TO PRESERVE STUDY VALIDITY]'}."
+
+STEP 3 — EXPLAIN THE DECEPTION
+"During the study, [DESCRIBE SPECIFICALLY WHAT WAS WITHHELD OR MISLEADING]. This was necessary because if participants knew the true purpose, it would have affected their responses and made the research invalid."
+
+STEP 4 — AFFIRM PARTICIPATION VALUE
+"Everything you did and said is still valuable and will contribute to this research."
+
+STEP 5 — OFFER DATA WITHDRAWAL
+"Now that you know the true purpose, you have the right to withdraw your data. If you would like your responses removed, please tell me now or contact me at ${researcher.piEmail || '[email]'} within [SPECIFY TIMEFRAME]."
+
+STEP 6 — OFFER TO ANSWER QUESTIONS
+"Do you have any questions about the study or what we discussed? [PAUSE — answer honestly]"
+
+STEP 7 — PROVIDE CONTACTS
+"You can reach me at ${researcher.piEmail || '[email]'} or ${researcher.piPhone || '[phone]'}. For questions about your rights as a research participant, contact the UB IRB at irb@bridgeport.edu."
+
+STEP 8 — REQUEST CONFIDENTIALITY
+"Please do not discuss the true nature of this study with others who may be potential participants, as this could affect the validity of the research."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RESEARCHER NOTES (Complete after each session)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Participant ID/Code: _______________  Date/Time: _______________
+Time spent on debriefing: _______________
+
+□ Participant acknowledged understanding of debriefing
+□ Participant asked questions (describe below)
+□ Participant requested data withdrawal
+□ Participant showed signs of distress — follow-up action taken:
+
+Notes: _________________________________________________________________
+_______________________________________________________________________
+
+Researcher Signature: _________________________ Date: ___________
+`;
+}
+
+// ─── HIPAA Authorization Form ─────────────────────────────────────────────────
+export function generateHIPAAAuthorization(formData) {
+  const { researcher, study, subjects, data } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const phiTypes = (data.identifierTypes || []).length > 0
+    ? data.identifierTypes.join(', ')
+    : '[List specific PHI: name, date of birth, medical record number, diagnosis codes, test results, etc.]';
+
+  return `UNIVERSITY OF BRIDGEPORT
+INSTITUTIONAL REVIEW BOARD
+HIPAA RESEARCH AUTHORIZATION FORM
+(45 CFR § 164.508)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STUDY TITLE: ${study.title || '[Study Title]'}
+PRINCIPAL INVESTIGATOR: ${piName}
+  Department: ${researcher.piDepartment || '[Department]'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. DESCRIPTION OF INFORMATION TO BE USED OR DISCLOSED
+The following Protected Health Information (PHI) may be used or disclosed:
+${phiTypes}
+
+[Specify time period: records from _____________ to _____________, or collected during the study period.]
+
+2. WHO MAY USE OR DISCLOSE YOUR INFORMATION
+${piName} (PI), the University of Bridgeport research team, and [LIST OTHER AUTHORIZED PERSONNEL].
+
+3. WHO MAY RECEIVE YOUR INFORMATION
+• University of Bridgeport Institutional Review Board
+${study.fundingSource && study.fundingSource !== 'none' ? `• Study sponsor: ${study.fundingSource}` : ''}
+• Federal and state regulatory agencies authorized to review research records
+• [LIST ANY OTHER RECIPIENTS]
+
+4. PURPOSE
+Your information will be used for: ${study.studyPurpose || '[Describe the specific research purpose for which PHI is needed]'}.
+
+5. EXPIRATION
+This authorization expires at the conclusion of this research study or when data are de-identified, or [SPECIFY DATE/EVENT — whichever comes first].
+
+6. YOUR RIGHT TO REVOKE
+You may revoke this authorization at any time by submitting a written request to ${piName} at ${researcher.piEmail || '[email]'}. Revocation stops future use but does not recall information already used or disclosed.
+
+7. EFFECT ON TREATMENT AND PAYMENT
+Your decision to authorize or refuse authorization WILL NOT affect your treatment, payment, enrollment in any health plan, or eligibility for benefits.
+
+8. RE-DISCLOSURE NOTICE
+Information disclosed may be subject to re-disclosure by the recipient and may no longer be protected by federal privacy rules.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AUTHORIZATION SIGNATURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+By signing below, I authorize the use and disclosure of my Protected Health Information as described above. I have received a copy of this form.
+
+Participant Signature: _________________________ Date: ___________
+Printed Name: _______________________________
+
+[If signing as a personal representative:]
+Representative Signature: _________________________ Date: ___________
+Printed Name: _______________________________
+Relationship to Participant: _______________
+Authority to Sign: _______________
+`;
+}
+
+// ─── Recruitment Email Template ───────────────────────────────────────────────
+export function generateRecruitmentEmail(formData) {
+  const { researcher, study, subjects, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+  const eligibility = [
+    subjects.minAge && subjects.maxAge ? `ages ${subjects.minAge}–${subjects.maxAge}` : subjects.minAge ? `age ${subjects.minAge}+` : null,
+    subjects.inclusionCriteria ? subjects.inclusionCriteria.split('\n')[0].trim() : null,
+  ].filter(Boolean).join('; ') || '[eligibility criteria]';
+
+  return `RECRUITMENT EMAIL TEMPLATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Do NOT send until IRB approval is received. Insert IRB # before sending.]
+
+FROM:    ${piName} <${researcher.piEmail || '[email]'}>
+SUBJECT: Invitation to Participate in Research Study: ${study.title || '[Study Title]'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Dear [Recipient / Potential Participant],
+
+My name is ${piName}, ${researcher.piDegree ? researcher.piDegree + ',' : ''} in the Department of ${researcher.piDepartment || '[Department]'} at the University of Bridgeport. I am conducting a research study, and I am writing to invite you to participate.
+
+ABOUT THE STUDY
+${study.studyPurpose || '[Brief description of the study purpose and significance]'}
+
+WHO CAN PARTICIPATE?
+You may be eligible if: ${eligibility}.
+${subjects.exclusionCriteria ? `You cannot participate if: ${subjects.exclusionCriteria.split('\n')[0].trim() || '[key exclusion criteria]'}.` : ''}
+
+WHAT IS INVOLVED?
+Participation involves: ${buildProceduresSummary(procedures)}.
+Your total time commitment is approximately ${duration}.
+
+COMPENSATION
+${subjects.compensationOffered ? subjects.compensationDetails || '[Describe compensation/incentive]' : 'This study is voluntary and there is no monetary compensation.'}
+
+HOW TO PARTICIPATE
+[Choose one and delete the others:]
+  • Complete the survey here: [INSERT LINK]
+  • Reply to this email to schedule a session.
+  • Contact me at the information below to express interest.
+
+Participation is completely voluntary. You may withdraw at any time without penalty. All information will be kept confidential.
+
+Thank you for your time and consideration.
+
+Sincerely,
+${piName}
+${researcher.piDegree ? researcher.piDegree + ', ' : ''}${researcher.piDepartment || '[Department]'}
+University of Bridgeport
+Email: ${researcher.piEmail || '[email]'}
+Phone: ${researcher.piPhone || '[phone]'}
+
+P.S. This study has been reviewed and approved by the University of Bridgeport Institutional Review Board. IRB Protocol #: [INSERT AFTER APPROVAL]. Questions about your rights as a research participant? Contact irb@bridgeport.edu.
+`;
+}
+
+// ─── Recruitment Flyer Template ───────────────────────────────────────────────
+export function generateRecruitmentFlyer(formData) {
+  const { researcher, study, subjects, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+
+  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+           RESEARCH PARTICIPANTS NEEDED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${study.title || '[Study Title]'}
+University of Bridgeport Research Study
+
+[Do NOT distribute until IRB approval is received. Add IRB # before posting.]
+
+──────────────────────────────────────────────────────────
+
+ARE YOU ELIGIBLE?
+${subjects.minAge && subjects.maxAge ? `  • Ages ${subjects.minAge}–${subjects.maxAge} years` : subjects.minAge ? `  • Age ${subjects.minAge}+` : '  • [List age requirement]'}
+${(subjects.inclusionCriteria || '[List eligibility criteria]').split('\n').filter(l => l.trim()).map(l => `  • ${l.trim()}`).join('\n')}
+
+WHAT'S INVOLVED?
+  • ${buildProceduresSummary(procedures)}
+  • Time commitment: approximately ${duration}
+  • Location: ${study.studySites || 'Online / [location]'}
+
+WHAT DO YOU GET?
+  • ${subjects.compensationOffered ? subjects.compensationDetails || '[Describe incentive/compensation]' : 'Voluntary participation — no monetary compensation'}
+
+ABOUT THE STUDY
+${study.studyPurpose || '[One or two sentences about the purpose and importance of this research]'}
+
+──────────────────────────────────────────────────────────
+CONTACT
+──────────────────────────────────────────────────────────
+
+Researcher: ${piName}
+Email:      ${researcher.piEmail || '[email]'}
+Phone:      ${researcher.piPhone || '[phone]'}
+Link/QR:    [INSERT SURVEY/SIGN-UP LINK OR QR CODE]
+
+──────────────────────────────────────────────────────────
+Approved by the University of Bridgeport IRB | IRB #: [Insert after approval]
+`;
+}
+
+// ─── Class Announcement Script ────────────────────────────────────────────────
+export function generateClassAnnouncement(formData) {
+  const { researcher, study, subjects, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+
+  return `CLASS ANNOUNCEMENT / VERBAL RECRUITMENT SCRIPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Estimated reading time: 45–60 seconds]
+[Obtain instructor permission BEFORE making this announcement]
+[Do NOT use until IRB approval is received]
+
+STUDY: ${study.title || '[Study Title]'}
+RESEARCHER: ${piName}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SCRIPT (read verbatim or paraphrase closely):
+
+"Hi everyone — my name is ${piName}. I am a ${researcher.piDegree || '[degree/title]'} in the Department of ${researcher.piDepartment || '[department]'} at the University of Bridgeport.
+
+I am conducting a research study about ${study.studyPurpose ? study.studyPurpose.substring(0, 100) + (study.studyPurpose.length > 100 ? '...' : '') : '[brief description of the study]'}, and I would like to invite you to participate.
+
+The study involves ${buildProceduresSummary(procedures)} and will take approximately ${duration}.
+
+${subjects.compensationOffered
+  ? subjects.compensationDetails || '[Describe compensation/incentive here]'
+  : 'Participation is completely voluntary and there is no compensation.'}
+
+I want to be very clear: participation is COMPLETELY VOLUNTARY and will NOT affect your grade in this course or your relationship with this university in any way. Whether you choose to participate or not, there will be absolutely no consequences.
+${subjects.extraCreditOffered ? '\nIf extra credit is available for this study, I want you to know there are other ways to earn the same credit — this is not the only option. Please speak with your instructor about alternatives.' : ''}
+If you are interested in participating, please [CHOOSE ONE: see me after class / visit this link: [INSERT LINK] / scan this QR code / take one of these flyers].
+
+Thank you for your time. Does anyone have any questions?"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTACT INFORMATION (for handout / flyer):
+  ${piName} — ${researcher.piEmail || '[email]'} — ${researcher.piPhone || '[phone]'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT REMINDERS:
+□ Do not exert pressure on individual students
+□ Do not take attendance of who signs up
+□ Do not ask students individually if they plan to participate
+□ If possible, leave the room before collecting sign-up information
+□ Instructor permission obtained (date: _____________)
+□ Class announced to: ___________________________________
+□ Date/time of announcement: ___________________________
+
+Researcher Signature: _________________________ Date: ___________
+`;
+}
+
+// ─── Social Media Post Template ───────────────────────────────────────────────
+export function generateSocialMediaPost(formData) {
+  const { researcher, study, subjects, procedures } = formData;
+  const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
+  const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
+  const eligibility = subjects.minAge && subjects.maxAge
+    ? `ages ${subjects.minAge}–${subjects.maxAge}`
+    : subjects.minAge ? `age ${subjects.minAge}+` : '[eligible group]';
+  const shortPost = `📢 Research participants needed! Study: "${study.title || '[Title]'}". Who: ${eligibility}. Time: ~${duration}. ${subjects.compensationOffered ? (subjects.compensationDetails || '[compensation]') + '. ' : ''}Contact: ${researcher.piEmail || '[email]'} [UB IRB approved]`.slice(0, 280);
+
+  return `SOCIAL MEDIA RECRUITMENT POST TEMPLATES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Do NOT post until IRB approval is received. Include IRB # in all posts.]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VERSION A — LONG FORM (LinkedIn / Facebook, ~100 words)
+──────────────────────────────────────────────────────────
+🔬 RESEARCH PARTICIPANTS NEEDED
+
+Are you ${eligibility}? Researchers at the University of Bridgeport are seeking participants for a study about ${study.studyPurpose ? study.studyPurpose.substring(0, 100) + '...' : '[brief study description]'}.
+
+📋 What's Involved: ${buildProceduresSummary(procedures)}
+⏱ Time Commitment: Approximately ${duration}
+💰 Compensation: ${subjects.compensationOffered ? subjects.compensationDetails || '[compensation details]' : 'Voluntary — no monetary compensation'}
+
+Participation is completely voluntary and your responses will be kept confidential.
+
+📧 Interested? Contact: ${piName} at ${researcher.piEmail || '[email]'} or visit [INSERT LINK]
+
+#Research #UniversityOfBridgeport #[StudyTopic] #Participants #AcademicResearch
+
+This study has been approved by the University of Bridgeport IRB. IRB #: [INSERT AFTER APPROVAL]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSION B — SHORT FORM (Twitter/X — ≤280 chars)
+──────────────────────────────────────────────────────────
+${shortPost}
+
+[Character count: ${shortPost.length}/280]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERSION C — INSTAGRAM CAPTION
+──────────────────────────────────────────────────────────
+📢 RESEARCH PARTICIPANTS NEEDED 📢
+
+University of Bridgeport researchers are studying ${study.studyPurpose ? study.studyPurpose.substring(0, 80) + '...' : '[topic]'}.
+
+✅ Who: ${eligibility}
+📋 What: ${buildProceduresSummary(procedures)}
+⏱ Time: ~${duration}
+💰 ${subjects.compensationOffered ? subjects.compensationDetails || '[compensation]' : 'Volunteer — no pay'}
+
+DM or click the link in bio! 👆
+
+#UBridgeport #Research #StudyParticipants #[StudyTopic] #AcademicResearch
+
+🔬 UB IRB Approved | IRB #: [INSERT AFTER APPROVAL]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+POSTING GUIDELINES:
+• Do NOT post until written IRB approval is received
+• IRB approval number MUST appear in every public-facing recruitment post
+• Never identify specific potential participants in posts
+• Keep copies/screenshots of all posts in your IRB file
+• For closed groups/communities: obtain group admin permission first
+`;
+}

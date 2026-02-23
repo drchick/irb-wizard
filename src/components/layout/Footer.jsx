@@ -1,7 +1,6 @@
 /**
  * Footer — Symbiotic Scholar Suite brand footer for IRBWiz
- * Matches the dark-background 4-column pattern used in Dr. Dissertation
- * and Peer-Review PRO, adapted for a Tailwind / React environment.
+ * 3-column layout: Brand | Resources | Symbiotic Scholar
  */
 import IRBWizLogo from './IRBWizLogo';
 
@@ -20,10 +19,10 @@ export default function Footer() {
       className="no-print"
       style={{ background: DARKER, color: MUTED, padding: '56px 24px 28px' }}
     >
-      {/* ── 4-column grid ─────────────────────────────────────────────────── */}
+      {/* ── 3-column grid ─────────────────────────────────────────────────── */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '2fr 1fr 1fr 1fr',
+        gridTemplateColumns: '2fr 1fr 1fr',
         gap: 48,
         maxWidth: 1000,
         margin: '0 auto 40px',
@@ -38,22 +37,12 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Product column */}
-        <div>
-          <h4 style={{ fontSize: 13, fontWeight: 700, color: BRIGHT, marginBottom: 14 }}>
-            IRBWiz
-          </h4>
-          <FooterLink href="/irb-review-guide.html" label="IRB Review Guide" />
-          <FooterLink href="/" label="Protocol Checklist" />
-          <FooterLink href="/" label="Consent Templates" />
-          <FooterLink href="/" label="AI Pre-Review" />
-        </div>
-
-        {/* Resources column */}
+        {/* Resources column — includes IRB Review Guide */}
         <div>
           <h4 style={{ fontSize: 13, fontWeight: 700, color: BRIGHT, marginBottom: 14 }}>
             Resources
           </h4>
+          <FooterLink href="/irb-review-guide.html" label="IRB Review Guide" />
           <FooterLink href="https://www.bridgeport.edu/research/irb/" external label="UB IRB Office" />
           <FooterLink href="https://www.hhs.gov/ohrp/regulations-and-policy/regulations/45-cfr-46/index.html" external label="45 CFR 46" />
           <FooterLink href="https://www.hhs.gov/ohrp/regulations-and-policy/belmont-report/index.html" external label="Belmont Report" />
@@ -65,6 +54,7 @@ export default function Footer() {
           <h4 style={{ fontSize: 13, fontWeight: 700, color: BRIGHT, marginBottom: 14 }}>
             Symbiotic Scholar
           </h4>
+          <FooterLink href="https://symbioticscholar.com" external label="Symbiotic Scholar" highlight />
           <FooterLink href="https://www.doctordissertation.com" external label="Dr. Dissertation" />
           <FooterLink href="https://peerreviewpro.com" external label="Peer-Review PRO" />
           <FooterLink href="#" label="IRBWiz" highlight />
@@ -105,7 +95,8 @@ export default function Footer() {
         marginRight: 'auto',
       }}>
         Part of the{' '}
-        <a href="#" style={{ color: GOLD, textDecoration: 'none' }}>Symbiotic Scholar</a>
+        <a href="https://symbioticscholar.com" target="_blank" rel="noopener noreferrer"
+           style={{ color: GOLD, textDecoration: 'none' }}>Symbiotic Scholar</a>
         {' '}family of AI-powered academic tools.{' '}
         Also see:{' '}
         <a href="https://www.doctordissertation.com" target="_blank" rel="noopener noreferrer"
