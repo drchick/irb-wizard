@@ -6,7 +6,7 @@
   <title>IRBWiz — Review Types Quick Reference Guide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Special+Elite&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Special+Elite&display=swap" rel="stylesheet" />
   <style>
     :root {
       --navy: #1e2d4e;
@@ -25,19 +25,34 @@
     /* ── Header ── */
     .header { background: var(--navy); color: white; padding: 0; }
     .header-top { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2.5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .logo-lockup { display: flex; align-items: center; gap: 14px; }
-    .logo-icon { flex-shrink: 0; }
+    /* ── Logo lockup — mortarboard cap hanging over "IR" ── */
+    .logo-lockup { display: flex; align-items: flex-end; }
+    .logo-full {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      padding-top: 20px;   /* space for the cap to float above */
+      flex-shrink: 0;
+    }
+    .logo-cap {
+      position: absolute;
+      top: 0; left: 0;
+      width: 42px; height: 28px;
+      overflow: visible;
+      transform: rotate(-7deg);
+      transform-origin: 28% 100%;  /* pivot near bottom-left — cap leans over IR */
+    }
     .logo-wordmark { display: flex; flex-direction: column; line-height: 1; }
     .logo-wordmark h1 {
-      font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
-      font-size: 1.55rem; font-weight: 900; letter-spacing: .01em; line-height: 1;
-      color: #ffffff;
+      font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      font-size: 1.55rem; font-weight: 900; letter-spacing: -0.01em; line-height: 1;
+      color: #ffffff; white-space: nowrap;
     }
     .logo-wordmark h1 span { color: #fbbf24; }
     .logo-wordmark p {
       font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, monospace;
-      font-size: .72rem; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
-      color: rgba(255,255,255,.52); margin-top: 4px;
+      font-size: .68rem; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
+      color: rgba(255,255,255,.50); margin-top: 4px; white-space: nowrap;
     }
 
     /* ── Footer ── */
@@ -152,9 +167,9 @@
     .type-fb  .scenario-who { color: #dc2626; }
 
     /* Criteria list */
-    .criteria { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
-    .criteria li { display: flex; align-items: flex-start; gap: .65rem; font-size: .86rem; }
-    .criteria li::before { content: '✓'; font-weight: 800; flex-shrink: 0; margin-top: .05rem; font-size: .85rem; }
+    .criteria { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .criteria li { display: block; position: relative; padding-left: 1.4rem; font-size: .86rem; line-height: 1.55; }
+    .criteria li::before { content: '✓'; font-weight: 800; position: absolute; left: 0; top: .05em; font-size: .85rem; }
     .type-nr  .criteria li::before { color: var(--purple); }
     .type-nhs .criteria li::before { color: #64748b; }
     .type-ex  .criteria li::before { color: var(--green); }
@@ -214,35 +229,32 @@
 <div class="header">
   <div class="header-top">
     <div class="logo-lockup">
-      <!-- IRBWiz Wizard Hat Logo -->
-      <svg class="logo-icon" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="IRBWiz">
-        <!-- Wand (behind hat) -->
-        <line x1="40" y1="42" x2="10" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
-        <!-- Hat body -->
-        <path d="M22 3 L5 34 L39 34 Z" fill="#fbbf24"/>
-        <!-- Hat brim -->
-        <ellipse cx="22" cy="34" rx="20" ry="5" fill="#f59e0b"/>
-        <!-- Hat band -->
-        <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill="#8b5cf6" opacity="0.9"/>
-        <!-- Centre star (4-point) -->
-        <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z" fill="white" opacity="0.95"/>
-        <!-- Left small star -->
-        <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z" fill="white" opacity="0.85"/>
-        <!-- Right dot -->
-        <circle cx="27.5" cy="24" r="1.6" fill="white" opacity="0.75"/>
-        <!-- Wand star at tip -->
-        <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z" fill="rgba(255,255,255,0.9)" opacity="0.98"/>
-        <!-- Sparkle dots around wand star -->
-        <circle cx="6.5"  cy="8.5" r="0.9" fill="rgba(255,255,255,0.9)" opacity="0.8"/>
-        <circle cx="13.5" cy="8.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
-        <circle cx="10"   cy="6.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
-        <!-- Sparkle at hat tip -->
-        <line x1="22" y1="0.5" x2="22" y2="2.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-        <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-      </svg>
-      <div class="logo-wordmark">
-        <h1>IRB<span>Wiz</span></h1>
-        <p>Symbiotic Scholar</p>
+      <!-- IRBWiz Mortarboard Logo — cap hanging on IR -->
+      <div class="logo-full">
+        <svg class="logo-cap" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Cap dome -->
+          <path d="M8 25 Q22 15 36 25 L34 35 Q22 43 10 35 Z" fill="#dde6f5"/>
+          <!-- Board (diamond from above) -->
+          <polygon points="22,9 41,20 22,28 3,20" fill="#eef2f9"/>
+          <!-- Board front-left sheen -->
+          <polygon points="22,9 3,20 22,28" fill="rgba(255,255,255,0.32)"/>
+          <!-- Crown button -->
+          <circle cx="22" cy="9" r="2.4" fill="#fbbf24"/>
+          <circle cx="22" cy="9" r="1.1" fill="#f59e0b"/>
+          <!-- Tassel cord -->
+          <path d="M23 9 Q37 14 40 22 L40 36" stroke="#fbbf24" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <!-- Tassel bob -->
+          <circle cx="40" cy="37.5" r="3.2" fill="#fbbf24"/>
+          <circle cx="40" cy="37.5" r="1.5" fill="#f59e0b"/>
+          <!-- Tassel fringe -->
+          <line x1="36.5" y1="40.5" x2="35"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
+          <line x1="40"   y1="40.5" x2="40"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
+          <line x1="43.5" y1="40.5" x2="44"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-wordmark">
+          <h1>IRB<span>Wiz</span></h1>
+          <p>Symbiotic Scholar</p>
+        </div>
       </div>
     </div>
   </div>
@@ -686,28 +698,27 @@
 
     <!-- Brand -->
     <div>
-      <!-- Wizard Hat Logo (light theme for footer = gold hat, gold Wiz) -->
-      <div style="display:flex;align-items:center;gap:11px;">
-        <svg width="38" height="38" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="IRBWiz" style="flex-shrink:0">
-          <line x1="40" y1="42" x2="10" y2="12" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M22 3 L5 34 L39 34 Z" fill="#fbbf24"/>
-          <ellipse cx="22" cy="34" rx="20" ry="5" fill="#f59e0b"/>
-          <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill="#8b5cf6" opacity="0.9"/>
-          <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z" fill="white" opacity="0.95"/>
-          <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z" fill="white" opacity="0.85"/>
-          <circle cx="27.5" cy="24" r="1.6" fill="white" opacity="0.75"/>
-          <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z" fill="rgba(255,255,255,0.9)" opacity="0.98"/>
-          <circle cx="6.5"  cy="8.5" r="0.9" fill="rgba(255,255,255,0.9)" opacity="0.8"/>
-          <circle cx="13.5" cy="8.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
-          <circle cx="10"   cy="6.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
-          <line x1="22" y1="0.5" x2="22" y2="2.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
-          <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+      <!-- IRBWiz Mortarboard Logo — footer variant -->
+      <div style="position:relative;display:inline-flex;flex-direction:column;padding-top:18px;flex-shrink:0;">
+        <svg style="position:absolute;top:0;left:0;width:36px;height:24px;overflow:visible;transform:rotate(-7deg);transform-origin:28% 100%;"
+             viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M8 25 Q22 15 36 25 L34 35 Q22 43 10 35 Z" fill="#dde6f5"/>
+          <polygon points="22,9 41,20 22,28 3,20" fill="#eef2f9"/>
+          <polygon points="22,9 3,20 22,28" fill="rgba(255,255,255,0.32)"/>
+          <circle cx="22" cy="9" r="2.4" fill="#fbbf24"/>
+          <circle cx="22" cy="9" r="1.1" fill="#f59e0b"/>
+          <path d="M23 9 Q37 14 40 22 L40 36" stroke="#fbbf24" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <circle cx="40" cy="37.5" r="3.2" fill="#fbbf24"/>
+          <circle cx="40" cy="37.5" r="1.5" fill="#f59e0b"/>
+          <line x1="36.5" y1="40.5" x2="35"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
+          <line x1="40"   y1="40.5" x2="40"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
+          <line x1="43.5" y1="40.5" x2="44"   y2="44" stroke="#fbbf24" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
         <div style="display:flex;flex-direction:column;line-height:1;">
-          <span style="font-family:'Cinzel','Palatino Linotype',Palatino,serif;font-size:1.25rem;font-weight:900;letter-spacing:.01em;color:#fff;">
+          <span style="font-family:'Playfair Display',Georgia,'Times New Roman',serif;font-size:1.2rem;font-weight:900;letter-spacing:-0.01em;color:#fff;white-space:nowrap;">
             IRB<span style="color:#fbbf24;">Wiz</span>
           </span>
-          <span style="font-family:'Special Elite','American Typewriter','Courier New',Courier,monospace;font-size:.65rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:4px;">
+          <span style="font-family:'Special Elite','American Typewriter','Courier New',Courier,monospace;font-size:.63rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.48);margin-top:4px;white-space:nowrap;">
             Symbiotic Scholar
           </span>
         </div>
@@ -724,8 +735,8 @@
       <h4>IRBWiz</h4>
       <a href="/">Launch Wizard</a>
       <a href="/irb-review-guide.html" class="highlight">IRB Review Guide</a>
-      <a href="/">Protocol Checklist</a>
-      <a href="/">AI Pre-Review</a>
+      <a href="#" title="Available inside the IRBWiz wizard app">Protocol Checklist</a>
+      <a href="#" title="Available inside the IRBWiz wizard app">AI Pre-Review</a>
     </div>
 
     <!-- Resources -->

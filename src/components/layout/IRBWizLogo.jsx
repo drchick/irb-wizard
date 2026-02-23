@@ -1,106 +1,147 @@
 /**
  * IRBWiz Logo — Symbiotic Scholar Suite
  *
+ * A doctoral mortarboard cap "hanging on" the IR of the IRBWiz wordmark.
+ *
  * Props:
- *   size    — icon pixel size (default 40)
- *   variant — 'icon' | 'full' (icon + wordmark)
- *   theme   — 'dark'  (white text, gold hat — for navy/dark backgrounds)
- *             'light' (navy text, amber hat — for white/light backgrounds)
+ *   size    — base pixel size (default 40)
+ *   variant — 'icon' | 'full' (cap only | cap + wordmark stacked)
+ *   theme   — 'dark'  (light cap, white text, gold — for navy/dark backgrounds)
+ *             'light' (navy cap, navy text, amber — for white/light backgrounds)
  */
 export default function IRBWizLogo({ size = 40, variant = 'icon', theme = 'dark', className = '' }) {
   const isDark = theme === 'dark';
 
-  // ── colour tokens ──────────────────────────────────────────────────────────
-  const hatFill     = '#fbbf24';          // warm gold — same in both themes
-  const hatBrim     = '#f59e0b';
-  const hatBand     = '#8b5cf6';          // classic wizard purple
-  const starColor   = isDark ? 'white' : '#fbbf24';
-  const wandColor   = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(30,45,78,0.45)';
-  const wand2Color  = isDark ? 'rgba(255,255,255,0.9)' : '#fbbf24';
+  // ── Colour tokens ──────────────────────────────────────────────────────────
+  const capBody    = isDark ? '#dde6f5' : '#1e2d4e';    // dome — icy blue-white / deep navy
+  const boardColor = isDark ? '#eef2f9' : '#152347';    // flat board top
+  const boardSheen = isDark ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.13)'; // 3-D highlight
+  const gold       = '#fbbf24';
+  const goldDeep   = '#f59e0b';
 
-  const wordIRB     = isDark ? '#ffffff'          : '#1e2d4e';
-  const wordWiz     = isDark ? '#fbbf24'          : '#d97706';
-  const wordSub     = isDark ? 'rgba(255,255,255,0.52)' : '#64748b';
+  const wordIRB = isDark ? '#ffffff'                : '#1e2d4e';
+  const wordWiz = isDark ? '#fbbf24'                : '#d97706';
+  const wordSub = isDark ? 'rgba(255,255,255,0.50)' : '#64748b';
 
-  // ── icon SVG (44 × 44 viewBox) ────────────────────────────────────────────
-  const icon = (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 44 44"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="IRBWiz"
-      style={{ flexShrink: 0 }}
-    >
-      {/* ── Wand (behind hat, crossing diagonally lower-right → upper-left) ── */}
-      <line x1="40" y1="42" x2="10" y2="12"
-        stroke={wandColor} strokeWidth="2.5" strokeLinecap="round" />
+  // ── Sizes ──────────────────────────────────────────────────────────────────
+  const capW    = Math.round(size * 0.78);            // rendered cap width
+  const capH    = Math.round(size * 0.52);            // rendered cap height
+  const capHang = Math.round(capH * 0.72);            // paddingTop so cap bottom just grazes letter-tops
+  const wordSz  = Math.round(size * 0.54);            // IRBWiz font-size
+  const subSz   = Math.max(8, Math.round(size * 0.215)); // Symbiotic Scholar font-size
+  const gap     = Math.max(2, Math.round(size * 0.06));
 
-      {/* ── Hat body (cone) ── */}
-      <path d="M22 3 L5 34 L39 34 Z" fill={hatFill} />
+  // ── Mortarboard SVG paths (44 × 44 internal viewBox) ──────────────────────
+  // Classic mortarboard from a slight above-front 3/4 angle.
+  // Dome visible below the diamond board; gold tassel drapes right.
+  const capPaths = (
+    <>
+      {/* Cap dome — rounded head-fitting part */}
+      <path d="M8 25 Q22 15 36 25 L34 35 Q22 43 10 35 Z" fill={capBody} />
 
-      {/* ── Hat brim ── */}
-      <ellipse cx="22" cy="34" rx="20" ry="5" fill={hatBrim} />
+      {/* Board / mortarboard top — diamond (rhombus) from slight above angle */}
+      <polygon points="22,9 41,20 22,28 3,20" fill={boardColor} />
 
-      {/* ── Hat band (purple stripe) ── */}
-      <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill={hatBand} opacity="0.9" />
+      {/* Front-left face of board — lighter sheen for 3-D depth */}
+      <polygon points="22,9 3,20 22,28" fill={boardSheen} />
 
-      {/* ── Stars on hat ── */}
-      {/* Centre star (4-point) */}
-      <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z"
-        fill={starColor} opacity="0.95" />
-      {/* Left small star */}
-      <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z"
-        fill={starColor} opacity="0.85" />
-      {/* Right dot */}
-      <circle cx="27.5" cy="24" r="1.6" fill={starColor} opacity="0.75" />
+      {/* Button at crown of board */}
+      <circle cx="22" cy="9" r="2.4" fill={gold} />
+      <circle cx="22" cy="9" r="1.1" fill={goldDeep} />
 
-      {/* ── Wand star / sparkle at tip (upper-left, above hat) ── */}
-      <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z"
-        fill={wand2Color} opacity="0.98" />
-      {/* Tiny sparkle dots around wand star */}
-      <circle cx="6.5"  cy="8.5" r="0.9" fill={wand2Color} opacity="0.8" />
-      <circle cx="13.5" cy="8.5" r="0.8" fill={wand2Color} opacity="0.7" />
-      <circle cx="10"   cy="6.5" r="0.8" fill={wand2Color} opacity="0.7" />
+      {/* Tassel cord — from button, arcs right to corner, drops straight down */}
+      <path d="M23 9 Q37 14 40 22 L40 36"
+        stroke={gold} strokeWidth="1.8" fill="none" strokeLinecap="round" />
 
-      {/* ── Sparkle at hat tip ── */}
-      <line x1="22" y1="0.5" x2="22" y2="2.5" stroke={wand2Color} strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
-      <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke={wand2Color} strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
-    </svg>
+      {/* Tassel bob */}
+      <circle cx="40" cy="37.5" r="3.2" fill={gold} />
+      <circle cx="40" cy="37.5" r="1.5" fill={goldDeep} />
+
+      {/* Tassel fringe — three hanging strands */}
+      <line x1="36.5" y1="40.5" x2="35"   y2="44" stroke={gold} strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="40"   y1="40.5" x2="40"   y2="44" stroke={gold} strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="43.5" y1="40.5" x2="44"   y2="44" stroke={gold} strokeWidth="1.4" strokeLinecap="round" />
+    </>
   );
 
-  if (variant === 'icon') return <span className={className}>{icon}</span>;
+  // ── Icon-only variant ──────────────────────────────────────────────────────
+  if (variant === 'icon') {
+    return (
+      <span className={className} style={{ display: 'inline-flex', flexShrink: 0 }}>
+        <svg
+          width={size} height={size}
+          viewBox="0 0 44 44" fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="IRBWiz"
+          style={{ overflow: 'visible' }}
+        >
+          {capPaths}
+        </svg>
+      </span>
+    );
+  }
 
-  // ── Full lockup ─────────────────────────────────────────────────────────────
+  // ── Full lockup ────────────────────────────────────────────────────────────
+  // paddingTop = capHang reserves space above the text.
+  // The cap SVG (position: absolute, top: 0) fills that space and its bottom
+  // edge (capH) slightly overlaps the text top (capHang) — the "hanging on IR" effect.
+  // A −7° tilt with the pivot near the bottom-left makes the cap read as draped/hung
+  // rather than rigidly placed.
   return (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: Math.round(size * 0.28) }}
       className={className}
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        flexDirection: 'column',
+        paddingTop: capHang,
+        flexShrink: 0,
+      }}
     >
-      {icon}
+      {/* Mortarboard cap */}
+      <svg
+        width={capW} height={capH}
+        viewBox="0 0 44 44" fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          overflow: 'visible',
+          transform: 'rotate(-7deg)',
+          transformOrigin: '28% 100%', // pivot near bottom-left → top leans right, base stays over IR
+        }}
+      >
+        {capPaths}
+      </svg>
+
+      {/* Text block */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
         {/* IRBWiz wordmark */}
         <span style={{
-          fontFamily: "'Cinzel', 'Palatino Linotype', 'Book Antiqua', Palatino, serif",
-          fontSize:   Math.round(size * 0.52),
+          fontFamily: "'Playfair Display', Georgia, 'Times New Roman', serif",
+          fontSize:   wordSz,
           fontWeight: 900,
-          letterSpacing: '0.01em',
+          letterSpacing: '-0.01em',
           lineHeight: 1,
           color: wordIRB,
+          whiteSpace: 'nowrap',
         }}>
           IRB<span style={{ color: wordWiz }}>Wiz</span>
         </span>
-        {/* Sub-brand line */}
+
+        {/* Sub-brand */}
         <span style={{
           fontFamily: "'Special Elite', 'American Typewriter', 'Courier New', Courier, monospace",
-          fontSize:   Math.max(9, Math.round(size * 0.235)),
+          fontSize:   subSz,
           fontWeight: 400,
           letterSpacing: '0.09em',
           lineHeight: 1,
-          marginTop:  Math.round(size * 0.08),
+          marginTop:  gap,
           color: wordSub,
           textTransform: 'uppercase',
+          whiteSpace: 'nowrap',
         }}>
           Symbiotic Scholar
         </span>
