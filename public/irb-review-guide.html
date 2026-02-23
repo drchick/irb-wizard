@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IRB Review Types — Quick Reference Guide | Symbiotic Scholar Suite</title>
+  <style>
+    :root {
+      --navy: #1e2d4e;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --gray: #6b7280;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: #1e293b; line-height: 1.6; }
+
+    /* ── Header ── */
+    .header { background: var(--navy); color: white; padding: 2.5rem 2rem; }
+    .header-inner { max-width: 960px; margin: 0 auto; }
+    .header-logo { display: flex; align-items: center; gap: .75rem; margin-bottom: .5rem; }
+    .header-logo svg { opacity: .8; }
+    .header h1 { font-size: 1.75rem; font-weight: 700; }
+    .header p { opacity: .75; margin-top: .4rem; font-size: .95rem; }
+    .header-meta { margin-top: 1rem; font-size: .8rem; opacity: .5; }
+
+    /* ── Nav pills ── */
+    .toc { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .toc-inner { max-width: 960px; margin: 0 auto; padding: .75rem 2rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+    .toc a { text-decoration: none; padding: .35rem .8rem; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1.5px solid; transition: all .15s; }
+    .toc a:hover { opacity: .8; }
+    .pill-nr   { color: var(--purple); border-color: var(--purple); }     .pill-nr:hover   { background: #f3f0ff; }
+    .pill-nhs  { color: var(--gray);   border-color: var(--gray);   }     .pill-nhs:hover  { background: #f1f5f9; }
+    .pill-ex   { color: var(--green);  border-color: var(--green);  }     .pill-ex:hover   { background: #f0fdf4; }
+    .pill-exp  { color: var(--amber);  border-color: var(--amber);  }     .pill-exp:hover  { background: #fffbeb; }
+    .pill-fb   { color: var(--red);    border-color: var(--red);    }     .pill-fb:hover   { background: #fff1f2; }
+
+    /* ── Main layout ── */
+    .main { max-width: 960px; margin: 0 auto; padding: 2rem; }
+    .intro-card { background: var(--navy); color: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+    .intro-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
+    .intro-card p { opacity: .85; font-size: .92rem; }
+    .flow { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-top: 1rem; }
+    .flow-item { background: rgba(255,255,255,.15); padding: .3rem .75rem; border-radius: 6px; font-size: .8rem; font-weight: 600; }
+    .flow-arrow { opacity: .5; font-size: 1.1rem; }
+
+    /* ── Review type sections ── */
+    .review-section { margin-bottom: 3rem; scroll-margin-top: 60px; }
+    .review-header { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; }
+    .review-badge { padding: .4rem 1rem; border-radius: 6px; font-size: .85rem; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+    .review-header h2 { font-size: 1.3rem; font-weight: 700; }
+    .review-header p { opacity: .85; font-size: .88rem; margin-top: .2rem; }
+    .review-body { border: 1.5px solid; border-top: none; border-radius: 0 0 12px 12px; overflow: hidden; }
+
+    /* Colors per type */
+    .type-nr   .review-header { background: #1e1b4b; color: white; }
+    .type-nr   .review-badge  { background: rgba(255,255,255,.2); color: white; }
+    .type-nr   .review-body   { border-color: #4c1d95; }
+    .type-nhs  .review-header { background: #374151; color: white; }
+    .type-nhs  .review-badge  { background: rgba(255,255,255,.2); color: white; }
+    .type-nhs  .review-body   { border-color: #9ca3af; }
+    .type-ex   .review-header { background: #14532d; color: white; }
+    .type-ex   .review-badge  { background: rgba(255,255,255,.2); color: white; }
+    .type-ex   .review-body   { border-color: #16a34a; }
+    .type-exp  .review-header { background: #78350f; color: white; }
+    .type-exp  .review-badge  { background: rgba(255,255,255,.2); color: white; }
+    .type-exp  .review-body   { border-color: #d97706; }
+    .type-fb   .review-header { background: #7f1d1d; color: white; }
+    .type-fb   .review-badge  { background: rgba(255,255,255,.2); color: white; }
+    .type-fb   .review-body   { border-color: #dc2626; }
+
+    /* ── Internal panels ── */
+    .panel { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+    .panel:last-child { border-bottom: none; }
+    .panel-title { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); margin-bottom: .75rem; }
+
+    /* Scenario box */
+    .scenario { background: #f8fafc; border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0 8px 8px 0; margin-bottom: 1rem; }
+    .scenario-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+    .scenario h3 { font-size: 1rem; font-weight: 700; margin-bottom: .35rem; }
+    .scenario p { font-size: .88rem; color: #374151; }
+
+    /* Criteria list */
+    .criteria { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .criteria li { display: flex; align-items: flex-start; gap: .6rem; font-size: .88rem; }
+    .criteria li::before { content: '✓'; font-weight: 700; flex-shrink: 0; margin-top: .1rem; }
+    .type-nr   .criteria li::before { color: var(--purple); }
+    .type-nhs  .criteria li::before { color: var(--gray); }
+    .type-ex   .criteria li::before { color: var(--green); }
+    .type-exp  .criteria li::before { color: var(--amber); }
+    .type-fb   .criteria li::before { color: var(--red); }
+
+    /* AI output example */
+    .ai-output { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 1.25rem; font-size: .8rem; font-family: 'Menlo', monospace; overflow-x: auto; }
+    .ai-key   { color: #7dd3fc; }
+    .ai-str   { color: #86efac; }
+    .ai-num   { color: #fbbf24; }
+    .ai-q     { color: #f9a8d4; font-style: italic; }
+    .ai-flag-error   { color: #fca5a5; }
+    .ai-flag-warning { color: #fde68a; }
+    .ai-flag-info    { color: #93c5fd; }
+
+    /* Action steps */
+    .actions { display: flex; flex-direction: column; gap: .5rem; }
+    .action { display: flex; gap: .75rem; align-items: flex-start; background: #f8fafc; padding: .75rem 1rem; border-radius: 8px; font-size: .88rem; }
+    .action-num { background: var(--navy); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0; margin-top: .1rem; }
+    .action strong { display: block; margin-bottom: .1rem; }
+
+    /* CFR citation chips */
+    .citations { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
+    .cite { background: #eff6ff; color: var(--blue); padding: .2rem .6rem; border-radius: 4px; font-size: .75rem; font-weight: 600; font-family: monospace; border: 1px solid #bfdbfe; }
+
+    /* Timeline */
+    .timeline { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .timeline-item { background: #f8fafc; border: 1.5px solid var(--border); border-radius: 8px; padding: .75rem 1rem; text-align: center; flex: 1; min-width: 100px; }
+    .timeline-item .t-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--gray); }
+    .timeline-item .t-value { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin: .2rem 0; }
+    .timeline-item .t-note  { font-size: .7rem; color: var(--gray); }
+
+    /* Warning callout */
+    .callout { border-radius: 8px; padding: .9rem 1.1rem; margin-top: .75rem; font-size: .85rem; display: flex; gap: .6rem; align-items: flex-start; }
+    .callout-error   { background: #fff1f2; border: 1px solid #fca5a5; color: #991b1b; }
+    .callout-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .callout-info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .callout-icon    { font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Integration section ── */
+    .integration { background: white; border: 1.5px solid var(--border); border-radius: 12px; padding: 1.75rem; margin-top: 2rem; }
+    .integration h2 { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+    .int-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .int-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    .int-card h3 { font-size: .9rem; font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
+    .int-card p  { font-size: .82rem; color: #374151; }
+
+    /* Footer */
+    .footer { background: var(--navy); color: rgba(255,255,255,.5); text-align: center; padding: 1.5rem; font-size: .8rem; margin-top: 3rem; }
+    .footer strong { color: rgba(255,255,255,.8); }
+
+    @media (max-width: 600px) {
+      .header { padding: 1.5rem 1rem; }
+      .main { padding: 1rem; }
+      .toc-inner { padding: .5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HEADER ══════════════ -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <span style="font-size:.85rem;opacity:.65;font-weight:600;letter-spacing:.04em">SYMBIOTIC SCHOLAR SUITE · UNIVERSITY OF BRIDGEPORT</span>
+    </div>
+    <h1>IRB Review Types — Quick Reference Guide</h1>
+    <p>Understand the 5 possible review outcomes, what triggers each, and how the AI Pre-Review wizard helps you prepare a stronger submission.</p>
+    <p class="header-meta">IRBWiz v1.0 · Based on 45 CFR 46 (2018 Common Rule) · February 2026</p>
+  </div>
+</div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<div class="toc">
+  <div class="toc-inner">
+    <a href="#not-research"      class="toc a pill-nr">Not Research</a>
+    <a href="#not-human"         class="toc a pill-nhs">Not Human Subjects</a>
+    <a href="#exempt"            class="toc a pill-ex">Exempt</a>
+    <a href="#expedited"         class="toc a pill-exp">Expedited</a>
+    <a href="#full-board"        class="toc a pill-fb">Full Board</a>
+    <a href="#integration"       class="toc a" style="color:var(--blue);border-color:var(--blue)">Suite Integration</a>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="main">
+
+  <!-- Intro decision flow -->
+  <div class="intro-card">
+    <h2>How IRBWiz Determines Your Review Level</h2>
+    <p>Every protocol passes through two parallel engines: a <strong>rules-based classifier</strong> (45 CFR 46 logic) and an <strong>AI narrative reviewer</strong> (Claude) that reads what you actually wrote. Both outputs appear together on Step 9 so discrepancies surface before formal submission.</p>
+    <div class="flow">
+      <span class="flow-item">Is it Research?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-item">Human Subjects?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-item">Exempt Category?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-item">Minimal Risk?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-item">Expedited Category?</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-item">Full Board</span>
+    </div>
+  </div>
+
+  <!-- ═══════ 1. NOT RESEARCH ═══════ -->
+  <div class="review-section type-nr" id="not-research">
+    <div class="review-header">
+      <div>
+        <div class="review-badge">NOT RESEARCH</div>
+        <h2>Activity Does Not Meet the Definition of Research</h2>
+        <p>No IRB review required. This is the best possible outcome for activities that are not systematic investigations intended to produce generalizable knowledge.</p>
+      </div>
+    </div>
+    <div class="review-body">
+
+      <div class="panel">
+        <div class="panel-title">Example Scenario</div>
+        <div class="scenario" style="border-color:#7c3aed">
+          <div class="scenario-label" style="color:#7c3aed">Scenario 1 — Curriculum Evaluation</div>
+          <h3>Dr. Reyes evaluates a new active-learning format in her Statistics course</h3>
+          <p>She surveys students at the end of the semester about their experience with flipped classroom instruction. Results will be used internally to decide whether to adopt the format department-wide. She does not plan to publish or present the findings beyond a departmental report.</p>
+        </div>
+        <div class="scenario" style="border-color:#7c3aed">
+          <div class="scenario-label" style="color:#7c3aed">Scenario 2 — Program Quality Improvement</div>
+          <h3>UB IT department surveys employees about satisfaction with new software rollout</h3>
+          <p>The survey is operational in nature — used solely to improve the IT helpdesk process. No intent to generalize findings beyond UB's internal operations.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Why It Gets This Classification</div>
+        <ul class="criteria">
+          <li>The activity is <strong>not designed</strong> to develop or contribute to generalizable knowledge</li>
+          <li>Findings will <strong>not be published</strong>, presented at conferences, or disseminated beyond the institution</li>
+          <li>The primary purpose is <strong>operational, instructional, or administrative</strong> improvement</li>
+          <li>The activity may be <strong>journalism, oral history, biography, or public benefit programs</strong></li>
+        </ul>
+        <div class="citations">
+          <span class="cite">45 CFR 46.102(l)</span>
+          <span class="cite">OHRP "Not Research" Determination</span>
+          <span class="cite">Belmont Report §I</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">What the AI Reviewer Looks For</div>
+        <div class="ai-output">
+{
+  <span class="ai-key">"reviewSuggestion"</span>: <span class="ai-str">"CANNOT_DETERMINE"</span>,  <span style="color:#64748b">← AI may flag ambiguity</span>
+  <span class="ai-key">"confidence"</span>: <span class="ai-num">0.55</span>,
+  <span class="ai-key">"reasoning"</span>: <span class="ai-str">"The described activity appears to be program evaluation rather than research. However, the stated intent to 'share results with peer institutions' introduces a generalizable knowledge component that an IRB must evaluate."</span>,
+  <span class="ai-key">"clarifyingQuestions"</span>: [
+    {
+      <span class="ai-key">"question"</span>: <span class="ai-q">"You state results will be shared with peer institutions. Does this constitute presenting findings beyond your own institution, which would make this research under 45 CFR 46.102(l)?"</span>,
+      <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span>
+    }
+  ],
+  <span class="ai-key">"flags"</span>: [
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-warning">"warning"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"Stated dissemination plans are inconsistent with a pure QI/program evaluation classification. Clarify scope before assuming no IRB review is needed."</span> }
+  ]
+}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">How to Address It — Action Steps</div>
+        <div class="actions">
+          <div class="action"><div class="action-num">1</div><div><strong>Clarify your dissemination intent in writing</strong>If you will publish, present, or share beyond your institution — you need IRB review.</div></div>
+          <div class="action"><div class="action-num">2</div><div><strong>Consider a "Not Human Subjects Research" determination letter</strong>UB IRB can issue a formal determination letter so you have documented protection if questioned.</div></div>
+          <div class="action"><div class="action-num">3</div><div><strong>Document the decision regardless</strong>Keep a record of why you determined no IRB review was needed — protects you if the activity evolves.</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ 2. NOT HUMAN SUBJECTS ═══════ -->
+  <div class="review-section type-nhs" id="not-human">
+    <div class="review-header">
+      <div>
+        <div class="review-badge">NOT HUMAN SUBJECTS</div>
+        <h2>Research, but No Human Subjects Involvement</h2>
+        <p>The activity is research, but does not involve human subjects as defined by 45 CFR 46. No full IRB review required — but a determination letter is recommended.</p>
+      </div>
+    </div>
+    <div class="review-body">
+
+      <div class="panel">
+        <div class="panel-title">Example Scenarios</div>
+        <div class="scenario" style="border-color:#9ca3af">
+          <div class="scenario-label" style="color:#6b7280">Scenario 1 — Secondary Data (De-identified)</div>
+          <h3>Analysis of publicly available, de-identified patient records from CMS</h3>
+          <p>Dr. Okonkwo downloads a CMS claims dataset. All records are fully de-identified per HIPAA Safe Harbor. He analyzes patterns in hospital readmission rates. No interaction with individuals; no identifiable private information.</p>
+        </div>
+        <div class="scenario" style="border-color:#9ca3af">
+          <div class="scenario-label" style="color:#6b7280">Scenario 2 — Cadaveric / Biological Specimens (No Identifiers)</div>
+          <h3>Pathological analysis of archived, anonymized tissue samples</h3>
+          <p>A researcher studies tumor microenvironments using 15-year-old biobank samples that were collected under a prior IRB protocol. The samples have no remaining link to any individual.</p>
+        </div>
+        <div class="scenario" style="border-color:#9ca3af">
+          <div class="scenario-label" style="color:#6b7280">Scenario 3 — Observational Data of Public Behavior</div>
+          <h3>Analysis of public social media posts about climate change attitudes</h3>
+          <p>Researcher scrapes publicly visible Twitter/X posts using a keyword search. No interaction with users; data is publicly accessible and not private in any reasonable expectation.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Why It Gets This Classification</div>
+        <ul class="criteria">
+          <li>No <strong>living individuals</strong> are subject to intervention or interaction by the researcher</li>
+          <li>No <strong>identifiable private information</strong> is obtained about living individuals</li>
+          <li>Secondary data is <strong>fully de-identified</strong> and cannot be re-linked</li>
+          <li>OR: uses only <strong>publicly available information</strong> that subjects have no reasonable expectation of privacy for</li>
+        </ul>
+        <div class="callout callout-warning">
+          <span class="callout-icon">⚠️</span>
+          <span><strong>HIPAA Caution:</strong> Even de-identified data may require a data use agreement (DUA). Check whether the dataset's de-identification was performed under HIPAA Safe Harbor (18 identifiers removed) or Expert Determination. Partial de-identification does not equal "not human subjects."</span>
+        </div>
+        <div class="citations">
+          <span class="cite">45 CFR 46.102(e)</span>
+          <span class="cite">45 CFR 164.514(b) HIPAA Safe Harbor</span>
+          <span class="cite">OHRP Coded Private Info Guidance</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Common AI Flags for This Category</div>
+        <div class="ai-output">
+{
+  <span class="ai-key">"flags"</span>: [
+    {
+      <span class="ai-key">"severity"</span>: <span class="ai-flag-error">"error"</span>,
+      <span class="ai-key">"message"</span>: <span class="ai-str">"You state data is 'de-identified' but also mention retaining zip codes and dates of service. These are among the 18 HIPAA Safe Harbor identifiers and must be removed or generalized (zip to 3-digit prefix if &lt;20,000 population; dates to year only). Current description does not qualify as de-identified."</span>
+    },
+    {
+      <span class="ai-key">"severity"</span>: <span class="ai-flag-warning">"warning"</span>,
+      <span class="ai-key">"message"</span>: <span class="ai-str">"Social media scraping of 'public' posts may still carry privacy risk if posts were made in semi-private contexts (e.g., closed groups, limited audience). Confirm that all collected posts were made with unrestricted public visibility."</span>
+    }
+  ]
+}</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ 3. EXEMPT ═══════ -->
+  <div class="review-section type-ex" id="exempt">
+    <div class="review-header">
+      <div>
+        <div class="review-badge">EXEMPT</div>
+        <h2>Exempt from Full IRB Review — Limited Review Required</h2>
+        <p>The research involves human subjects but falls into one of the federal exempt categories. An IRB administrator must confirm the exemption — researchers cannot self-certify.</p>
+      </div>
+    </div>
+    <div class="review-body">
+
+      <div class="panel">
+        <div class="panel-title">Common Exempt Scenarios</div>
+        <div class="scenario" style="border-color:#16a34a">
+          <div class="scenario-label" style="color:#16a34a">Category 2 — Survey / Interview Research</div>
+          <h3>Anonymous online survey of UB undergraduate stress and coping strategies</h3>
+          <p>Prof. Diaz administers a 25-question anonymous Qualtrics survey to 200 undergraduates about academic stress. No identifying information collected. Topics are not sensitive enough to warrant serious harm if disclosed. Results will be published in a peer-reviewed journal.</p>
+        </div>
+        <div class="scenario" style="border-color:#16a34a">
+          <div class="scenario-label" style="color:#16a34a">Category 1 — Normal Educational Practices</div>
+          <h3>Comparing two instructional approaches in a UB education course</h3>
+          <p>A faculty researcher compares student outcomes across two sections of the same course — one using traditional lecture, one using peer instruction. All activities are standard educational practice. No sensitive data collected.</p>
+        </div>
+        <div class="scenario" style="border-color:#16a34a">
+          <div class="scenario-label" style="color:#16a34a">Category 4 — Secondary Research with Identifiable Data</div>
+          <h3>Analysis of existing identified medical records for complication rates</h3>
+          <p>Researcher accesses existing patient records under a HIPAA waiver to study post-surgical complication rates. No new data collection; secondary use of records originally collected for clinical care.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">The 8 Exempt Categories (2018 Common Rule)</div>
+        <ul class="criteria">
+          <li><strong>§46.104(d)(1)</strong> — Normal educational practices in established curricula</li>
+          <li><strong>§46.104(d)(2)</strong> — Surveys, interviews, observations of public behavior (adults, no more than minimal risk)</li>
+          <li><strong>§46.104(d)(3)</strong> — Benign behavioral interventions with adults (brief, harmless, consent optional)</li>
+          <li><strong>§46.104(d)(4)</strong> — Secondary research with identifiable data/specimens (HIPAA authorization or waiver)</li>
+          <li><strong>§46.104(d)(5)</strong> — Federal demonstration projects studying public benefit/service programs</li>
+          <li><strong>§46.104(d)(6)</strong> — Taste and food quality evaluation, consumer acceptance studies</li>
+          <li><strong>§46.104(d)(7)</strong> — Storage or maintenance for secondary research (with broad consent)</li>
+          <li><strong>§46.104(d)(8)</strong> — Secondary research with broad consent</li>
+        </ul>
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ️</span>
+          <span><strong>Important:</strong> Categories 7 and 8 (broad consent) are new under the 2018 revision. Categories 1–3 do <em>not</em> apply to research involving prisoners. Categories 2 and 3 may still require limited IRB review for privacy safeguards.</span>
+        </div>
+        <div class="citations">
+          <span class="cite">45 CFR 46.104(d)</span>
+          <span class="cite">OHRP Exemptions Guidance 2018</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Typical AI Pre-Review Output for an Exempt Study</div>
+        <div class="ai-output">
+{
+  <span class="ai-key">"reviewSuggestion"</span>: <span class="ai-str">"EXEMPT"</span>,
+  <span class="ai-key">"confidence"</span>: <span class="ai-num">0.88</span>,
+  <span class="ai-key">"reasoning"</span>: <span class="ai-str">"This anonymous survey of adult UB undergraduates on academic stress fits §46.104(d)(2). No identifiable information is collected, topics do not carry criminal/employment risk if disclosed, and subjects are competent adults. Limited review will be required to confirm privacy protections."</span>,
+  <span class="ai-key">"clarifyingQuestions"</span>: [
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"Will Qualtrics capture IP addresses or any browser metadata that could indirectly identify respondents? If so, describe how these will be disabled or handled."</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"The survey includes questions about 'substance use to cope with stress.' Does this topic require the use of a Certificate of Confidentiality to protect disclosures?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"medium"</span> }
+  ],
+  <span class="ai-key">"flags"</span>: [
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-info">"info"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"Exempt studies still require submission of an Exempt Review Application to UB IRB. The researcher cannot self-certify. Allow 1–2 weeks for the IRB administrator's determination."</span> }
+  ],
+  <span class="ai-key">"reviewerNotes"</span>: <span class="ai-str">"Strong exempt candidate. Primary remaining question is whether the substance-use topic elevates risk or triggers Certificate of Confidentiality requirements. Confirm anonymization settings in Qualtrics and the application should proceed smoothly."</span>
+}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Timeline &amp; What to Submit</div>
+        <div class="timeline">
+          <div class="timeline-item"><div class="t-label">Submit</div><div class="t-value">Exempt App</div><div class="t-note">Sitero Mentor</div></div>
+          <div class="timeline-item"><div class="t-label">Review Time</div><div class="t-value">1–2 wks</div><div class="t-note">Admin review</div></div>
+          <div class="timeline-item"><div class="t-label">Consent</div><div class="t-value">Info Sheet</div><div class="t-note">No signature</div></div>
+          <div class="timeline-item"><div class="t-label">Annual</div><div class="t-value">Not req'd</div><div class="t-note">Amendments if changes</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ 4. EXPEDITED ═══════ -->
+  <div class="review-section type-exp" id="expedited">
+    <div class="review-header">
+      <div>
+        <div class="review-badge">EXPEDITED</div>
+        <h2>Expedited Review — Minimal Risk, Specific Categories</h2>
+        <p>Research that presents no more than minimal risk and falls into one of nine expedited review categories. Reviewed by one or more designated IRB members rather than the full board.</p>
+      </div>
+    </div>
+    <div class="review-body">
+
+      <div class="panel">
+        <div class="panel-title">Example Scenarios</div>
+        <div class="scenario" style="border-color:#d97706">
+          <div class="scenario-label" style="color:#d97706">Category 6 — Voice/Video Recordings (not exempt)</div>
+          <h3>Semi-structured interviews with UB faculty about pandemic-era remote teaching</h3>
+          <p>Dr. Chen conducts 60-minute recorded Zoom interviews with 20 faculty members. Topics include professional challenges, institutional support, and burnout. Recordings will be transcribed and de-identified. Participants are not in coercive relationships with the researcher.</p>
+        </div>
+        <div class="scenario" style="border-color:#d97706">
+          <div class="scenario-label" style="color:#d97706">Category 2 — Small Blood Draws</div>
+          <h3>Blood draw study measuring cortisol levels in first-year medical students</h3>
+          <p>A single 5mL blood draw at one time point from 50 healthy adult volunteers. Draws performed by a licensed phlebotomist. Specimens analyzed for cortisol and processed without identifiers.</p>
+        </div>
+        <div class="scenario" style="border-color:#d97706">
+          <div class="scenario-label" style="color:#d97706">Category 7 — Research on Individual or Group Behavior</div>
+          <h3>Focus group study on perceived career barriers among first-generation college students</h3>
+          <p>Six focus groups of 6–8 participants each. Audio recorded. Topics include socioeconomic background, family expectations, and institutional belonging. No sensitive medical/legal disclosures expected.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">The 9 Expedited Review Categories (FDA/OHRP)</div>
+        <ul class="criteria">
+          <li><strong>Cat. 1</strong> — Clinical studies of drugs/devices already approved, no additional risks</li>
+          <li><strong>Cat. 2</strong> — Collection of blood by venipuncture (≤550mL/8 weeks; ≤2 draws)</li>
+          <li><strong>Cat. 3</strong> — Prospective collection of biological specimens (skin, mucosal, hair, nails, excreta)</li>
+          <li><strong>Cat. 4</strong> — Collection of data through non-invasive procedures (EEG, MRI, exercise, etc.)</li>
+          <li><strong>Cat. 5</strong> — Research involving materials collected solely for non-research purposes</li>
+          <li><strong>Cat. 6</strong> — Collection of data through voice/video/digital recordings for research</li>
+          <li><strong>Cat. 7</strong> — Research on individual/group characteristics or behavior (surveys, interviews, focus groups) — identifiable, not exempt</li>
+          <li><strong>Cat. 8</strong> — Continuing review of previously approved research that is now minimal risk</li>
+          <li><strong>Cat. 9</strong> — Continuing review when IRB determines remaining work poses no more than minimal risk</li>
+        </ul>
+        <div class="callout callout-warning">
+          <span class="callout-icon">⚠️</span>
+          <span><strong>Key Distinction from Exempt:</strong> Expedited research requires a <em>full informed consent document</em> (not just an information sheet) with a participant signature, unless the IRB waives the documentation requirement. The AI reviewer will flag missing consent documentation plans.</span>
+        </div>
+        <div class="citations">
+          <span class="cite">45 CFR 46.110</span>
+          <span class="cite">63 FR 60364 (Expedited Categories)</span>
+          <span class="cite">21 CFR 56.110</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Typical AI Pre-Review Output for an Expedited Study</div>
+        <div class="ai-output">
+{
+  <span class="ai-key">"reviewSuggestion"</span>: <span class="ai-str">"EXPEDITED"</span>,
+  <span class="ai-key">"confidence"</span>: <span class="ai-num">0.79</span>,
+  <span class="ai-key">"reasoning"</span>: <span class="ai-str">"Audio-recorded focus groups with identifiable participants on career barriers fits Expedited Category 7. Risk is minimal but not exempt due to identifiability via recordings. Full consent documentation is required unless a waiver of documentation is granted."</span>,
+  <span class="ai-key">"clarifyingQuestions"</span>: [
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"You mention focus groups will discuss 'family financial situations and undocumented status.' These topics could expose participants to legal risk if recorded conversations were subpoenaed. Have you considered a Certificate of Confidentiality, and will this risk be disclosed in the consent form?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"Focus group confidentiality cannot be guaranteed by the researcher — other participants may disclose what was said. How will you disclose this limitation to participants in the consent process?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"You list '6–8 participants per group' but do not specify how many total focus groups or total N. Please confirm total participant count for the application."</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"medium"</span> }
+  ],
+  <span class="ai-key">"flags"</span>: [
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-error">"error"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"Sensitive topics (undocumented status, financial distress) discussed in a group setting create legal risk for participants that was not acknowledged in the Risk section. Must be disclosed and addressed in the consent document per 45 CFR 46.116(b)(2)."</span> },
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-warning">"warning"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"No moderator guide or topic list provided. IRB will likely request the interview/focus group guide as a supplemental document."</span> }
+  ]
+}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Timeline &amp; What to Submit</div>
+        <div class="timeline">
+          <div class="timeline-item"><div class="t-label">Submit</div><div class="t-value">Full Protocol</div><div class="t-note">+ consent form</div></div>
+          <div class="timeline-item"><div class="t-label">Review Time</div><div class="t-value">2–4 wks</div><div class="t-note">1–2 reviewers</div></div>
+          <div class="timeline-item"><div class="t-label">Consent</div><div class="t-value">Signed Form</div><div class="t-note">UB template req'd</div></div>
+          <div class="timeline-item"><div class="t-label">Annual</div><div class="t-value">Required</div><div class="t-note">Continuing review</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ 5. FULL BOARD ═══════ -->
+  <div class="review-section type-fb" id="full-board">
+    <div class="review-header">
+      <div>
+        <div class="review-badge">FULL BOARD</div>
+        <h2>Full Board Review — Greater than Minimal Risk</h2>
+        <p>Research that poses more than minimal risk to participants, involves vulnerable populations, or raises significant ethical questions requiring convened board discussion and vote.</p>
+      </div>
+    </div>
+    <div class="review-body">
+
+      <div class="panel">
+        <div class="panel-title">Example Scenarios</div>
+        <div class="scenario" style="border-color:#dc2626">
+          <div class="scenario-label" style="color:#dc2626">Vulnerable Population — Incarcerated Individuals</div>
+          <h3>Survey study on mental health needs of incarcerated women at a Connecticut correctional facility</h3>
+          <p>Researcher proposes to administer depression and trauma screening tools to 150 incarcerated women. Even though the survey instrument itself carries minimal risk, the involvement of prisoners automatically triggers Full Board review under 45 CFR 46 Subpart C, requiring at least one prisoner or prisoner representative on the reviewing board.</p>
+        </div>
+        <div class="scenario" style="border-color:#dc2626">
+          <div class="scenario-label" style="color:#dc2626">Greater than Minimal Risk — Drug/Intervention Trial</div>
+          <h3>Phase II clinical trial of a novel anxiolytic compound in adult outpatients</h3>
+          <p>A randomized, double-blind, placebo-controlled trial administering an investigational drug to 80 adults with generalized anxiety disorder. Involves medical screening, blood draws at 6 time points, adverse event monitoring, and a 6-month follow-up. FDA IND required.</p>
+        </div>
+        <div class="scenario" style="border-color:#dc2626">
+          <div class="scenario-label" style="color:#dc2626">Deception + Psychological Stress Induction</div>
+          <h3>Study inducing acute social rejection to measure cortisol response in adolescents</h3>
+          <p>Participants aged 14–17 are told they were not chosen for a peer group (Cyberball paradigm). Blood draws before and after. Parental permission and child assent required. Active deception, vulnerable population (minors), and blood draws combine to require Full Board review.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Triggers for Full Board Review</div>
+        <ul class="criteria">
+          <li><strong>Greater than minimal risk</strong> — risk exceeds what one would encounter in daily life or routine exams</li>
+          <li><strong>Prisoners (Subpart C)</strong> — any research involving incarcerated individuals</li>
+          <li><strong>Pregnant women / neonates (Subpart B)</strong> — if research poses risk to fetus or is not for direct benefit</li>
+          <li><strong>Children (Subpart D)</strong> — research with more than minimal risk and no direct benefit, OR greater than minor increase over minimal risk even with benefit</li>
+          <li><strong>Cognitively impaired adults</strong> — limited decisional capacity requires additional protections</li>
+          <li><strong>Significant deception</strong> — when the deception itself poses psychological risk</li>
+          <li><strong>FDA-regulated research</strong> — IND/IDE studies, drug/device trials</li>
+          <li><strong>IRB chair discretion</strong> — any protocol raising novel ethical issues may be referred to the full board</li>
+        </ul>
+        <div class="callout callout-error">
+          <span class="callout-icon">🚨</span>
+          <span><strong>Never start Full Board research without written IRB approval.</strong> Unlike expedited review (which can proceed if the reviewer doesn't respond within 14 days), Full Board research requires a majority vote at a convened meeting with quorum. Starting early is a serious federal compliance violation.</span>
+        </div>
+        <div class="citations">
+          <span class="cite">45 CFR 46.111</span>
+          <span class="cite">45 CFR 46 Subparts B, C, D</span>
+          <span class="cite">21 CFR 56.111</span>
+          <span class="cite">FDA 21 CFR 312 (IND)</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Typical AI Pre-Review Output for a Full Board Study</div>
+        <div class="ai-output">
+{
+  <span class="ai-key">"reviewSuggestion"</span>: <span class="ai-str">"FULL_BOARD"</span>,
+  <span class="ai-key">"confidence"</span>: <span class="ai-num">0.95</span>,
+  <span class="ai-key">"reasoning"</span>: <span class="ai-str">"Research involves adolescent subjects (Subpart D), active deception with psychological stress induction, and blood collection at multiple time points. The combination exceeds minimal risk and requires Subpart D findings by the convened board. Full Board review is mandatory."</span>,
+  <span class="ai-key">"clarifyingQuestions"</span>: [
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"Under 45 CFR 46.405, for research involving greater than minimal risk in children with prospect of direct benefit, the IRB must find the risk-benefit ratio is at least as favorable as available alternatives. What is the direct benefit to adolescent participants in this stress-induction study, if any?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"You describe a debriefing procedure but do not specify the timeframe. The Cyberball paradigm is known to cause acute distress. Will debriefing occur immediately after the rejection induction, before the participant leaves the session? Who will conduct the debriefing and what training do they have?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"The assent procedure for 14–17 year olds is described only as 'verbal assent.' Given the sensitive nature of the study (stress induction, blood draws), the IRB is likely to require written assent. Please describe your assent process in detail."</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> },
+    { <span class="ai-key">"question"</span>: <span class="ai-q">"What is your stopping rule if a participant shows signs of acute psychological distress during the rejection induction? Who on the research team is qualified to assess and respond?"</span>, <span class="ai-key">"importance"</span>: <span class="ai-str">"high"</span> }
+  ],
+  <span class="ai-key">"flags"</span>: [
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-error">"error"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"No adverse event monitoring plan described despite greater-than-minimal-risk protocol with minors. 45 CFR 46.111(a)(6) requires adequate provisions for monitoring participant safety. A DSMB or at minimum a medical monitor should be specified."</span> },
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-error">"error"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"The consent form mentions blood draws but does not specify volume, number of draws, or storage/disposal plan for biological specimens collected from minors. These are required elements under 45 CFR 46.116(b)."</span> },
+    { <span class="ai-key">"severity"</span>: <span class="ai-flag-warning">"warning"</span>, <span class="ai-key">"message"</span>: <span class="ai-str">"The deception (false peer rejection) must be justified scientifically — i.e., why can't the research question be answered without deception? This justification is absent from the protocol and is a required element for board approval."</span> }
+  ],
+  <span class="ai-key">"reviewerNotes"</span>: <span class="ai-str">"This protocol has significant scientific merit but contains multiple critical gaps that will result in a board request for major revisions. The safety monitoring plan, deception justification, and Subpart D risk-benefit analysis are the three most urgent items to address before submission."</span>
+}</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Timeline &amp; What to Submit</div>
+        <div class="timeline">
+          <div class="timeline-item"><div class="t-label">Submit</div><div class="t-value">Full Protocol</div><div class="t-note">All instruments</div></div>
+          <div class="timeline-item"><div class="t-label">Review Time</div><div class="t-value">4–6 wks</div><div class="t-note">Board meeting</div></div>
+          <div class="timeline-item"><div class="t-label">Consent</div><div class="t-value">Full Form</div><div class="t-note">Signed, witnessed</div></div>
+          <div class="timeline-item"><div class="t-label">Annual</div><div class="t-value">Required</div><div class="t-note">+ Adverse events</div></div>
+        </div>
+        <div class="callout callout-info" style="margin-top:.75rem">
+          <span class="callout-icon">ℹ️</span>
+          <span>UB IRB typically holds Full Board meetings monthly. Submit at least 3 weeks before the meeting date you need. Contact <strong>irb@bridgeport.edu</strong> or call <strong>(203) 576-4974</strong> to confirm the current meeting schedule before you submit.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ SUITE INTEGRATION ═══════ -->
+  <div class="integration" id="integration">
+    <h2>🔗 Symbiotic Scholar Suite Integration</h2>
+    <p style="color:#374151;font-size:.9rem;margin-bottom:1.25rem">IRBWiz is designed as a standalone module that can be embedded in or connected to the broader Symbiotic Scholar Suite.</p>
+    <div class="int-grid">
+      <div class="int-card">
+        <h3>🪟 iFrame Embed</h3>
+        <p>Add <code>?embed=true</code> to the URL to suppress the header and nav for seamless embedding within a portal or LMS frame. Works on any page of the suite.</p>
+      </div>
+      <div class="int-card">
+        <h3>🔑 Shared Auth</h3>
+        <p>Pass <code>?token=JWT</code> for SSO integration. The wizard will pre-populate researcher name/email from the token payload, skipping Step 2 for signed-in users.</p>
+      </div>
+      <div class="int-card">
+        <h3>📡 PostMessage API</h3>
+        <p>The wizard fires <code>window.parent.postMessage({type:'irb-complete', reviewType, documents})</code> on Step 10 completion, letting the suite shell react to a finished protocol.</p>
+      </div>
+      <div class="int-card">
+        <h3>📥 JSON Export</h3>
+        <p>Step 10 outputs a machine-readable JSON payload of all form data plus the review determination — can feed into Sitero Mentor's API or a compliance dashboard.</p>
+      </div>
+      <div class="int-card">
+        <h3>🎨 Theming</h3>
+        <p>CSS custom properties (<code>--brand-primary</code>, <code>--brand-secondary</code>) in <code>index.css</code> allow per-department branding without forking the codebase.</p>
+      </div>
+      <div class="int-card">
+        <h3>🚀 Deployment</h3>
+        <p>Deploy to Vercel with a single <code>vercel deploy</code> command. Set <code>ANTHROPIC_API_KEY</code> in the Vercel dashboard. The AI endpoints auto-scale as serverless functions.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  <strong>IRBWiz — Symbiotic Scholar Suite</strong> · University of Bridgeport · IRB Office: irb@bridgeport.edu · (203) 576-4974<br>
+  This guide is for informational purposes only and does not constitute legal or regulatory advice. Always consult the UB IRB for formal determinations.
+</div>
+
+</body>
+</html>
