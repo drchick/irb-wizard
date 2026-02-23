@@ -59,7 +59,7 @@ export default function Footer() {
           </h4>
           <FooterLink href="https://www.doctordissertation.com" external label="Dr. Dissertation" color={PURPLE} />
           <FooterLink href="https://peerreviewpro.com" external label="Peer-Review PRO" color={TEAL} />
-          <FooterLink href="#" label="IRBWiz" color={GOLD} />
+          <FooterLink href="https://irbwiz.help" external label="IRBWiz" color={GOLD} />
         </div>
       </div>
 
@@ -79,8 +79,8 @@ export default function Footer() {
       }}>
         <span>© {year} IRBWiz by Symbiotic Scholar. All rights reserved.</span>
         <div style={{ display: 'flex', gap: 20 }}>
-          <a href="#" style={{ color: SOFT, textDecoration: 'none' }}>Privacy Policy</a>
-          <a href="#" style={{ color: SOFT, textDecoration: 'none' }}>Terms of Service</a>
+          <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener noreferrer" style={{ color: SOFT, textDecoration: 'none' }}>Privacy Policy</a>
+          <a href="https://irbwiz.help/terms" target="_blank" rel="noopener noreferrer" style={{ color: SOFT, textDecoration: 'none' }}>Terms of Service</a>
         </div>
       </div>
 

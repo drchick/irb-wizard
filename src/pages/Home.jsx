@@ -276,7 +276,7 @@ const PLANS = [
       'Invoice/PO billing available',
     ],
     cta: 'Contact Us',
-    ctaTo: 'mailto:hello@symbioticscholar.com',
+    ctaTo: 'mailto:hello@irbwiz.help',
     ctaStyle: 'border',
     external: true,
   },
@@ -366,7 +366,7 @@ function Pricing() {
 
         <p className="text-center text-xs text-slate-400 mt-8">
           Institutional licensing available for universities and research hospitals.
-          <a href="mailto:hello@symbioticscholar.com" className="underline ml-1 hover:text-slate-600">Contact us</a> for custom pricing.
+          <a href="mailto:hello@irbwiz.help" className="underline ml-1 hover:text-slate-600">Contact us</a> for custom pricing.
         </p>
       </div>
     </section>

@@ -12,8 +12,9 @@
  *   2. Copy "Project URL" and "anon public" key
  *   3. Authentication → Providers → Google → enable, add Client ID + Secret
  *      (get credentials from Google Cloud Console → OAuth 2.0)
- *   4. Authentication → URL Configuration → add http://localhost:5173 to
- *      "Redirect URLs" (and your production domain when deploying)
+ *   4. Authentication → URL Configuration → add both to "Redirect URLs":
+ *        http://localhost:5173
+ *        https://irbwiz.help
  *
  * The app detects missing config and shows a graceful warning instead of crashing.
  */
