@@ -13,6 +13,7 @@ const initialFormData = {
     hasCITITraining: null,
     citiCompletionDate: '',
     citiExpiryDate: '',
+    citiCertFileName: '',
     isNewProtocol: true,
   },
   // Step 2 – Researcher Info

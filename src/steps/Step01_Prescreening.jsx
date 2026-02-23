@@ -1,6 +1,7 @@
 import { useWizard } from '../context/WizardContext';
 import { YesNo, ConditionalYesNo, SectionHeader, TextInput } from '../components/ui/FormField';
 import { InfoBox } from '../components/ui/InfoBox';
+import CitiCertUpload from '../components/ui/CitiCertUpload';
 import { Shield } from 'lucide-react';
 
 export default function Step01_Prescreening() {
@@ -116,24 +117,35 @@ export default function Step01_Prescreening() {
               )}
 
               {ps.hasCITITraining === true && (
-                <div className="grid grid-cols-2 gap-4">
-                  <TextInput
-                    label="CITI Completion Date"
-                    id="citiCompletionDate"
-                    type="date"
-                    value={ps.citiCompletionDate}
-                    onChange={e => f('citiCompletionDate', e.target.value)}
-                    hint="Date you completed or most recently refreshed training"
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <TextInput
+                      label="CITI Completion Date"
+                      id="citiCompletionDate"
+                      type="date"
+                      value={ps.citiCompletionDate}
+                      onChange={e => f('citiCompletionDate', e.target.value)}
+                      hint="Date you completed or most recently refreshed training"
+                    />
+                    <TextInput
+                      label="CITI Expiration Date"
+                      id="citiExpiryDate"
+                      type="date"
+                      value={ps.citiExpiryDate}
+                      onChange={e => f('citiExpiryDate', e.target.value)}
+                      hint="CITI training is valid for 3 years from completion"
+                    />
+                  </div>
+                  <CitiCertUpload
+                    onDatesExtracted={(completion, expiry) => {
+                      if (completion) f('citiCompletionDate', completion);
+                      if (expiry)     f('citiExpiryDate',     expiry);
+                    }}
+                    onFileSelected={(filename) => f('citiCertFileName', filename)}
+                    onRemove={() => f('citiCertFileName', '')}
+                    currentFileName={ps.citiCertFileName}
                   />
-                  <TextInput
-                    label="CITI Expiration Date"
-                    id="citiExpiryDate"
-                    type="date"
-                    value={ps.citiExpiryDate}
-                    onChange={e => f('citiExpiryDate', e.target.value)}
-                    hint="CITI training is valid for 3 years from completion"
-                  />
-                </div>
+                </>
               )}
 
               {/* Q5: New protocol? */}

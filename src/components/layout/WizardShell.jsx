@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useWizard, STEPS } from '../../context/WizardContext';
 import { StepNav } from './StepNav';
 import { ReviewBadge } from './ReviewBadge';
@@ -5,6 +6,7 @@ import IRBWizLogo from './IRBWizLogo';
 import Footer from './Footer';
 import { IssueList } from '../ui/InfoBox';
 import { getIssueCount } from '../../utils/consistencyChecker';
+import { getMissingFields } from '../../utils/stepRequirements';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -26,11 +28,27 @@ const STEP_COMPONENTS = {
 };
 
 export function WizardShell() {
-  const { currentStep, nextStep, prevStep, reviewResult, consistencyIssues } = useWizard();
+  const { currentStep, nextStep, prevStep, reviewResult, consistencyIssues, formData } = useWizard();
   const StepComponent = STEP_COMPONENTS[currentStep];
   const errors   = getIssueCount(consistencyIssues, 'error');
   const warnings = getIssueCount(consistencyIssues, 'warning');
   const currentStepMeta = STEPS.find(s => s.id === currentStep);
+
+  // ── Step completion soft warning ─────────────────────────────────────────
+  const [pendingWarning, setPendingWarning] = useState(null);
+
+  // Auto-clear warning when user navigates via sidebar
+  useEffect(() => { setPendingWarning(null); }, [currentStep]);
+
+  const handleContinue = () => {
+    const missing = getMissingFields(currentStep, formData);
+    if (missing.length > 0 && !pendingWarning) {
+      setPendingWarning(missing);   // show warning; don't advance yet
+    } else {
+      setPendingWarning(null);
+      nextStep();                   // second click, or already warned → proceed
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -86,6 +104,35 @@ export function WizardShell() {
             <StepComponent />
           </div>
 
+          {/* Step completion warning banner */}
+          {pendingWarning && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 mb-4 no-print">
+              <p className="font-semibold text-amber-800 text-sm flex items-center gap-1.5">
+                <AlertTriangle size={15} className="shrink-0" />
+                Before you continue, consider completing:
+              </p>
+              <ul className="mt-2 ml-5 list-disc text-sm text-amber-700 space-y-0.5">
+                {pendingWarning.map(({ label }) => (
+                  <li key={label}>{label}</li>
+                ))}
+              </ul>
+              <div className="mt-3 flex gap-2">
+                <button
+                  className="btn-secondary text-sm"
+                  onClick={() => setPendingWarning(null)}
+                >
+                  ← Stay on this step
+                </button>
+                <button
+                  className="btn-primary text-sm"
+                  onClick={() => { setPendingWarning(null); nextStep(); }}
+                >
+                  Continue anyway →
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Navigation buttons */}
           <div className="flex items-center justify-between no-print">
             <button
@@ -101,7 +148,7 @@ export function WizardShell() {
                 : 'Last step'}
             </span>
             {currentStep < STEPS.length ? (
-              <button className="btn-primary" onClick={nextStep}>
+              <button className="btn-primary" onClick={handleContinue}>
                 Continue →
               </button>
             ) : (
