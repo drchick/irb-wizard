@@ -1,75 +1,108 @@
-// IRBWiz Logo — Symbiotic Scholar Suite, University of Bridgeport
-// Usage: <IRBWizLogo size={40} /> or <IRBWizLogo variant="full" />
+/**
+ * IRBWiz Logo — Symbiotic Scholar Suite
+ *
+ * Props:
+ *   size    — icon pixel size (default 40)
+ *   variant — 'icon' | 'full' (icon + wordmark)
+ *   theme   — 'dark'  (white text, gold hat — for navy/dark backgrounds)
+ *             'light' (navy text, amber hat — for white/light backgrounds)
+ */
+export default function IRBWizLogo({ size = 40, variant = 'icon', theme = 'dark', className = '' }) {
+  const isDark = theme === 'dark';
 
-export default function IRBWizLogo({ size = 40, variant = 'icon', className = '' }) {
-  // Icon-only mode: just the shield emblem
-  if (variant === 'icon') {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-        aria-label="IRBWiz"
-      >
-        {/* Shield base */}
-        <path
-          d="M20 3L5 9v10c0 8.5 6.5 16.4 15 18.4C29.5 35.4 36 27.5 36 19V9L20 3z"
-          fill="#1e2d4e"
-        />
-        {/* Shield highlight */}
-        <path
-          d="M20 6L8 11v8c0 7 5.3 13.5 12 15.6V6z"
-          fill="rgba(255,255,255,0.06)"
-        />
-        {/* Document lines — representing protocol */}
-        <rect x="14" y="13" width="8" height="1.5" rx="0.75" fill="white" opacity="0.9"/>
-        <rect x="14" y="17" width="12" height="1.5" rx="0.75" fill="white" opacity="0.7"/>
-        <rect x="14" y="21" width="10" height="1.5" rx="0.75" fill="white" opacity="0.7"/>
-        {/* AI spark — top right of shield */}
-        <circle cx="27" cy="14" r="5" fill="#2563eb"/>
-        <path
-          d="M27 10.5v1.5M27 16v1.5M23.5 14h1.5M29 14h1.5M24.6 11.6l1.1 1.1M28.3 15.3l1.1 1.1M24.6 16.4l1.1-1.1M28.3 12.7l1.1-1.1"
-          stroke="white"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
-        {/* Check mark — review complete */}
-        <path
-          d="M16 26.5l2.5 2.5 5.5-5.5"
-          stroke="#60a5fa"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
+  // ── colour tokens ──────────────────────────────────────────────────────────
+  const hatFill     = '#fbbf24';          // warm gold — same in both themes
+  const hatBrim     = '#f59e0b';
+  const hatBand     = '#8b5cf6';          // classic wizard purple
+  const starColor   = isDark ? 'white' : '#fbbf24';
+  const wandColor   = isDark ? 'rgba(255,255,255,0.7)' : 'rgba(30,45,78,0.45)';
+  const wand2Color  = isDark ? 'rgba(255,255,255,0.9)' : '#fbbf24';
 
-  // Full lockup: icon + wordmark
+  const wordIRB     = isDark ? '#ffffff'          : '#1e2d4e';
+  const wordWiz     = isDark ? '#fbbf24'          : '#d97706';
+  const wordSub     = isDark ? 'rgba(255,255,255,0.52)' : '#64748b';
+
+  // ── icon SVG (44 × 44 viewBox) ────────────────────────────────────────────
+  const icon = (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 44 44"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="IRBWiz"
+      style={{ flexShrink: 0 }}
+    >
+      {/* ── Wand (behind hat, crossing diagonally lower-right → upper-left) ── */}
+      <line x1="40" y1="42" x2="10" y2="12"
+        stroke={wandColor} strokeWidth="2.5" strokeLinecap="round" />
+
+      {/* ── Hat body (cone) ── */}
+      <path d="M22 3 L5 34 L39 34 Z" fill={hatFill} />
+
+      {/* ── Hat brim ── */}
+      <ellipse cx="22" cy="34" rx="20" ry="5" fill={hatBrim} />
+
+      {/* ── Hat band (purple stripe) ── */}
+      <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill={hatBand} opacity="0.9" />
+
+      {/* ── Stars on hat ── */}
+      {/* Centre star (4-point) */}
+      <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z"
+        fill={starColor} opacity="0.95" />
+      {/* Left small star */}
+      <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z"
+        fill={starColor} opacity="0.85" />
+      {/* Right dot */}
+      <circle cx="27.5" cy="24" r="1.6" fill={starColor} opacity="0.75" />
+
+      {/* ── Wand star / sparkle at tip (upper-left, above hat) ── */}
+      <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z"
+        fill={wand2Color} opacity="0.98" />
+      {/* Tiny sparkle dots around wand star */}
+      <circle cx="6.5"  cy="8.5" r="0.9" fill={wand2Color} opacity="0.8" />
+      <circle cx="13.5" cy="8.5" r="0.8" fill={wand2Color} opacity="0.7" />
+      <circle cx="10"   cy="6.5" r="0.8" fill={wand2Color} opacity="0.7" />
+
+      {/* ── Sparkle at hat tip ── */}
+      <line x1="22" y1="0.5" x2="22" y2="2.5" stroke={wand2Color} strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
+      <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke={wand2Color} strokeWidth="1.1" strokeLinecap="round" opacity="0.8" />
+    </svg>
+  );
+
+  if (variant === 'icon') return <span className={className}>{icon}</span>;
+
+  // ── Full lockup ─────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} className={className}>
-      <IRBWizLogo size={size} variant="icon" />
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: Math.round(size * 0.28) }}
+      className={className}
+    >
+      {icon}
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+        {/* IRBWiz wordmark */}
         <span style={{
-          fontSize: size * 0.55,
-          fontWeight: 800,
-          color: '#1e2d4e',
-          letterSpacing: '-0.02em',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontFamily: "'Cinzel', 'Palatino Linotype', 'Book Antiqua', Palatino, serif",
+          fontSize:   Math.round(size * 0.52),
+          fontWeight: 900,
+          letterSpacing: '0.01em',
+          lineHeight: 1,
+          color: wordIRB,
         }}>
-          IRB<span style={{ color: '#2563eb' }}>Wiz</span>
+          IRB<span style={{ color: wordWiz }}>Wiz</span>
         </span>
+        {/* Sub-brand line */}
         <span style={{
-          fontSize: size * 0.26,
-          color: '#64748b',
-          fontWeight: 500,
-          letterSpacing: '0.02em',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontFamily: "'Special Elite', 'American Typewriter', 'Courier New', Courier, monospace",
+          fontSize:   Math.max(9, Math.round(size * 0.235)),
+          fontWeight: 400,
+          letterSpacing: '0.09em',
+          lineHeight: 1,
+          marginTop:  Math.round(size * 0.08),
+          color: wordSub,
+          textTransform: 'uppercase',
         }}>
-          Symbiotic Scholar Suite
+          Symbiotic Scholar
         </span>
       </div>
     </div>

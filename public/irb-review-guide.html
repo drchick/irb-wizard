@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IRBWiz — Review Types Quick Reference Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Special+Elite&display=swap" rel="stylesheet" />
   <style>
     :root {
       --navy: #1e2d4e;
@@ -23,10 +26,53 @@
     .header { background: var(--navy); color: white; padding: 0; }
     .header-top { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 2.5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
     .logo-lockup { display: flex; align-items: center; gap: 14px; }
-    .logo-shield { width: 52px; height: 52px; }
-    .logo-text h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-    .logo-text h1 span { color: #60a5fa; }
-    .logo-text p { font-size: .78rem; opacity: .6; font-weight: 500; margin-top: 3px; letter-spacing: .04em; text-transform: uppercase; }
+    .logo-icon { flex-shrink: 0; }
+    .logo-wordmark { display: flex; flex-direction: column; line-height: 1; }
+    .logo-wordmark h1 {
+      font-family: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      font-size: 1.55rem; font-weight: 900; letter-spacing: .01em; line-height: 1;
+      color: #ffffff;
+    }
+    .logo-wordmark h1 span { color: #fbbf24; }
+    .logo-wordmark p {
+      font-family: 'Special Elite', 'American Typewriter', 'Courier New', Courier, monospace;
+      font-size: .72rem; font-weight: 400; letter-spacing: .09em; text-transform: uppercase;
+      color: rgba(255,255,255,.52); margin-top: 4px;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: #0a1628; color: #94a3b8; padding: 56px 24px 28px;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px; max-width: 1000px; margin: 0 auto 40px;
+    }
+    .footer-brand-desc { font-size: 13px; line-height: 1.75; margin-top: 14px; max-width: 280px; }
+    .footer-col h4 { font-size: 13px; font-weight: 700; color: #e2e8f0; margin-bottom: 14px; }
+    .footer-col a {
+      display: block; font-size: 13px; color: #94a3b8;
+      text-decoration: none; margin-bottom: 9px; transition: color .2s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-col a.highlight { color: #fbbf24; }
+    .footer-bottom {
+      border-top: 1px solid #1a2e4a; padding-top: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 1000px; margin: 0 auto; font-size: 12px; color: #64748b;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a { color: #64748b; text-decoration: none; }
+    .footer-bottom-links a:hover { color: #fff; }
+    .footer-symbiotic {
+      font-size: 12px; color: #64748b; text-align: center;
+      margin-top: 14px; padding-top: 14px; border-top: 1px solid #1a2e4a;
+      max-width: 1000px; margin-left: auto; margin-right: auto;
+    }
+    .footer-symbiotic a { color: #fbbf24; text-decoration: none; }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
     .header-tagline { background: rgba(255,255,255,.05); padding: 1rem 2.5rem 1.25rem; }
     .header-tagline p { font-size: .95rem; opacity: .8; max-width: 680px; }
     .header-tagline .meta { font-size: .75rem; opacity: .45; margin-top: .4rem; }
@@ -168,20 +214,35 @@
 <div class="header">
   <div class="header-top">
     <div class="logo-lockup">
-      <!-- IRBWiz Shield Logo -->
-      <svg class="logo-shield" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 3L5 9v10c0 8.5 6.5 16.4 15 18.4C29.5 35.4 36 27.5 36 19V9L20 3z" fill="rgba(255,255,255,0.12)"/>
-        <path d="M20 3L5 9v10c0 8.5 6.5 16.4 15 18.4C29.5 35.4 36 27.5 36 19V9L20 3z" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-        <rect x="14" y="13" width="8" height="1.5" rx="0.75" fill="white" opacity="0.9"/>
-        <rect x="14" y="17" width="12" height="1.5" rx="0.75" fill="white" opacity="0.7"/>
-        <rect x="14" y="21" width="10" height="1.5" rx="0.75" fill="white" opacity="0.7"/>
-        <circle cx="27" cy="14" r="5" fill="#2563eb"/>
-        <path d="M27 10.5v1.5M27 16v1.5M23.5 14h1.5M29 14h1.5" stroke="white" stroke-width="1.1" stroke-linecap="round"/>
-        <path d="M16 26.5l2.5 2.5 5.5-5.5" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- IRBWiz Wizard Hat Logo -->
+      <svg class="logo-icon" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="IRBWiz">
+        <!-- Wand (behind hat) -->
+        <line x1="40" y1="42" x2="10" y2="12" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Hat body -->
+        <path d="M22 3 L5 34 L39 34 Z" fill="#fbbf24"/>
+        <!-- Hat brim -->
+        <ellipse cx="22" cy="34" rx="20" ry="5" fill="#f59e0b"/>
+        <!-- Hat band -->
+        <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill="#8b5cf6" opacity="0.9"/>
+        <!-- Centre star (4-point) -->
+        <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z" fill="white" opacity="0.95"/>
+        <!-- Left small star -->
+        <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z" fill="white" opacity="0.85"/>
+        <!-- Right dot -->
+        <circle cx="27.5" cy="24" r="1.6" fill="white" opacity="0.75"/>
+        <!-- Wand star at tip -->
+        <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z" fill="rgba(255,255,255,0.9)" opacity="0.98"/>
+        <!-- Sparkle dots around wand star -->
+        <circle cx="6.5"  cy="8.5" r="0.9" fill="rgba(255,255,255,0.9)" opacity="0.8"/>
+        <circle cx="13.5" cy="8.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
+        <circle cx="10"   cy="6.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
+        <!-- Sparkle at hat tip -->
+        <line x1="22" y1="0.5" x2="22" y2="2.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+        <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
       </svg>
-      <div class="logo-text">
+      <div class="logo-wordmark">
         <h1>IRB<span>Wiz</span></h1>
-        <p>Symbiotic Scholar Suite · University of Bridgeport</p>
+        <p>Symbiotic Scholar</p>
       </div>
     </div>
   </div>
@@ -617,6 +678,91 @@
   </div>
 
 </div><!-- /main -->
+
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="site-footer">
+  <div class="footer-grid">
+
+    <!-- Brand -->
+    <div>
+      <!-- Wizard Hat Logo (light theme for footer = gold hat, gold Wiz) -->
+      <div style="display:flex;align-items:center;gap:11px;">
+        <svg width="38" height="38" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="IRBWiz" style="flex-shrink:0">
+          <line x1="40" y1="42" x2="10" y2="12" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M22 3 L5 34 L39 34 Z" fill="#fbbf24"/>
+          <ellipse cx="22" cy="34" rx="20" ry="5" fill="#f59e0b"/>
+          <path d="M8.5 27.5 L35.5 27.5 L37 31 L7 31 Z" fill="#8b5cf6" opacity="0.9"/>
+          <path d="M22 13 L23.3 16 L26.5 17 L23.3 18 L22 21 L20.7 18 L17.5 17 L20.7 16 Z" fill="white" opacity="0.95"/>
+          <path d="M16 22 L16.9 23.6 L18.8 24 L16.9 24.4 L16 26 L15.1 24.4 L13.2 24 L15.1 23.6 Z" fill="white" opacity="0.85"/>
+          <circle cx="27.5" cy="24" r="1.6" fill="white" opacity="0.75"/>
+          <path d="M10 9 L11.3 11 L13.8 12 L11.3 13 L10 15 L8.7 13 L6.2 12 L8.7 11 Z" fill="rgba(255,255,255,0.9)" opacity="0.98"/>
+          <circle cx="6.5"  cy="8.5" r="0.9" fill="rgba(255,255,255,0.9)" opacity="0.8"/>
+          <circle cx="13.5" cy="8.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
+          <circle cx="10"   cy="6.5" r="0.8" fill="rgba(255,255,255,0.9)" opacity="0.7"/>
+          <line x1="22" y1="0.5" x2="22" y2="2.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+          <line x1="20.2" y1="1.5" x2="23.8" y2="1.5" stroke="rgba(255,255,255,0.9)" stroke-width="1.1" stroke-linecap="round" opacity="0.8"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;line-height:1;">
+          <span style="font-family:'Cinzel','Palatino Linotype',Palatino,serif;font-size:1.25rem;font-weight:900;letter-spacing:.01em;color:#fff;">
+            IRB<span style="color:#fbbf24;">Wiz</span>
+          </span>
+          <span style="font-family:'Special Elite','American Typewriter','Courier New',Courier,monospace;font-size:.65rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:4px;">
+            Symbiotic Scholar
+          </span>
+        </div>
+      </div>
+      <p class="footer-brand-desc">
+        AI-assisted IRB protocol preparation for researchers at the University of
+        Bridgeport and beyond. Rules-based review classification guided by 45 CFR 46
+        and the Belmont Report.
+      </p>
+    </div>
+
+    <!-- IRBWiz links -->
+    <div class="footer-col">
+      <h4>IRBWiz</h4>
+      <a href="/">Launch Wizard</a>
+      <a href="/irb-review-guide.html" class="highlight">IRB Review Guide</a>
+      <a href="/">Protocol Checklist</a>
+      <a href="/">AI Pre-Review</a>
+    </div>
+
+    <!-- Resources -->
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="https://www.bridgeport.edu/research/irb/" target="_blank" rel="noopener">UB IRB Office</a>
+      <a href="https://www.hhs.gov/ohrp/regulations-and-policy/regulations/45-cfr-46/index.html" target="_blank" rel="noopener">45 CFR 46</a>
+      <a href="https://www.hhs.gov/ohrp/regulations-and-policy/belmont-report/index.html" target="_blank" rel="noopener">Belmont Report</a>
+      <a href="https://about.citiprogram.org/" target="_blank" rel="noopener">CITI Training</a>
+    </div>
+
+    <!-- Suite -->
+    <div class="footer-col">
+      <h4>Symbiotic Scholar</h4>
+      <a href="https://www.doctordissertation.com" target="_blank" rel="noopener">Dr. Dissertation</a>
+      <a href="https://peerreviewpro.com" target="_blank" rel="noopener">Peer-Review PRO</a>
+      <a href="/" class="highlight">IRBWiz</a>
+    </div>
+
+  </div>
+
+  <!-- Footer bottom -->
+  <div class="footer-bottom">
+    <span>© <script>document.write(new Date().getFullYear())</script> IRBWiz by Symbiotic Scholar. All rights reserved.</span>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+
+  <!-- Symbiotic Scholar bar -->
+  <div class="footer-symbiotic">
+    Part of the <a href="#">Symbiotic Scholar</a> family of AI-powered academic tools.
+    Also see: <a href="https://www.doctordissertation.com" target="_blank" rel="noopener">Dr. Dissertation</a>
+    · <a href="https://peerreviewpro.com" target="_blank" rel="noopener">Peer-Review PRO</a>
+  </div>
+</footer>
 
 
 </body>

@@ -2,6 +2,7 @@ import { useWizard, STEPS } from '../../context/WizardContext';
 import { StepNav } from './StepNav';
 import { ReviewBadge } from './ReviewBadge';
 import IRBWizLogo from './IRBWizLogo';
+import Footer from './Footer';
 import { IssueList } from '../ui/InfoBox';
 import { getIssueCount } from '../../utils/consistencyChecker';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
@@ -37,7 +38,7 @@ export function WizardShell() {
       <header className="bg-navy-800 text-white shadow-md no-print">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <IRBWizLogo size={36} variant="full" className="text-white" />
+            <IRBWizLogo size={36} variant="full" theme="dark" />
           </div>
           <div className="flex items-center gap-3">
             {errors > 0 && (
@@ -122,6 +123,9 @@ export function WizardShell() {
           )}
         </aside>
       </div>
+
+      {/* ── Footer ── */}
+      <Footer />
     </div>
   );
 }
