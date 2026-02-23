@@ -83,15 +83,15 @@ export function WizardShell() {
             {/* User avatar + sign out */}
             {user && (
               <div className="flex items-center gap-2 ml-1 pl-3 border-l border-navy-600">
-                {user.photoURL && (
+                {user.user_metadata?.avatar_url && (
                   <img
-                    src={user.photoURL}
-                    alt={user.displayName || 'User'}
+                    src={user.user_metadata.avatar_url}
+                    alt={user.user_metadata?.full_name || 'User'}
                     className="w-7 h-7 rounded-full border border-navy-500"
                   />
                 )}
                 <span className="text-xs text-slate-300 hidden sm:block max-w-[120px] truncate">
-                  {user.displayName || user.email}
+                  {user.user_metadata?.full_name || user.email}
                 </span>
                 <button
                   onClick={handleSignOut}

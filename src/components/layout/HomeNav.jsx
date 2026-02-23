@@ -22,10 +22,10 @@ export default function HomeNav() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              {user.photoURL && (
+              {user.user_metadata?.avatar_url && (
                 <img
-                  src={user.photoURL}
-                  alt={user.displayName || 'User'}
+                  src={user.user_metadata.avatar_url}
+                  alt={user.user_metadata?.full_name || 'User'}
                   className="w-7 h-7 rounded-full border border-slate-500"
                 />
               )}

@@ -1,24 +1,22 @@
 /**
  * AuthContext.jsx
  *
- * Provides authentication state (Firebase) to the entire app.
+ * Provides authentication state (Supabase) to the entire app.
  * Wrap <App> with <AuthProvider> in main.jsx.
  *
  * useAuth() returns:
- *   user          — Firebase User object or null
- *   loading       — true while initial auth state is resolving
- *   signInWithGoogle — opens Google popup, returns promise
- *   signOut       — signs out, returns promise
- *   firebaseReady — false if Firebase env vars are not configured
+ *   user            — Supabase User object or null
+ *                     user.email
+ *                     user.user_metadata.full_name
+ *                     user.user_metadata.avatar_url
+ *   loading         — true while initial session is resolving
+ *   signInWithGoogle — triggers Supabase Google OAuth redirect
+ *   signOut         — signs out, returns promise
+ *   supabaseReady   — false if Supabase env vars are not configured
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-} from 'firebase/auth';
-import { auth, provider, firebaseConfigured } from '../firebase';
+import { supabase, supabaseConfigured } from '../supabase';
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
@@ -31,30 +29,51 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firebaseConfigured || !auth) {
+    if (!supabaseConfigured || !supabase) {
       setLoading(false);
       return;
     }
 
-    // Persist login state across page refreshes
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    // Hydrate session from localStorage on first load
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return unsubscribe;   // cleanup on unmount
+    // Listen for sign-in / sign-out / token refresh events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
-    if (!firebaseConfigured || !auth) {
-      throw new Error('Firebase is not configured. Add VITE_FIREBASE_* to your .env file.');
+  /**
+   * Redirects to Google OAuth via Supabase.
+   * After the user authenticates, Google redirects back to redirectTo
+   * (defaults to /wizard). Supabase stores the session automatically.
+   */
+  const signInWithGoogle = async (redirectTo) => {
+    if (!supabaseConfigured || !supabase) {
+      throw new Error(
+        'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'
+      );
     }
-    const result = await signInWithPopup(auth, provider);
-    return result.user;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectTo ?? `${window.location.origin}/wizard`,
+      },
+    });
+    if (error) throw error;
+    // Browser will navigate away — no further action needed here
   };
 
   const signOut = async () => {
-    if (auth) await firebaseSignOut(auth);
+    if (supabase) await supabase.auth.signOut();
     setUser(null);
   };
 
@@ -64,7 +83,7 @@ export function AuthProvider({ children }) {
       loading,
       signInWithGoogle,
       signOut,
-      firebaseReady: firebaseConfigured,
+      supabaseReady: supabaseConfigured,
     }}>
       {children}
     </AuthContext.Provider>

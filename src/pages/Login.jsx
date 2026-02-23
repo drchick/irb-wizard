@@ -1,9 +1,11 @@
 /**
  * Login.jsx — Sign-in page
  *
- * Shows a centered card with Google Sign-In.
+ * Shows a centered card with Google Sign-In via Supabase OAuth.
+ * Clicking "Continue with Google" redirects to Google, which redirects
+ * back to /wizard after successful authentication.
  * Already-authenticated users are redirected to /wizard immediately.
- * Shows a graceful warning if Firebase is not yet configured.
+ * Shows a graceful warning if Supabase is not yet configured.
  */
 
 import { useState, useEffect } from 'react';
@@ -25,10 +27,10 @@ function GoogleIcon() {
 }
 
 export default function Login() {
-  const { user, loading, signInWithGoogle, firebaseReady } = useAuth();
+  const { user, loading, signInWithGoogle, supabaseReady } = useAuth();
   const navigate = useNavigate();
-  const [signingIn, setSigningIn]   = useState(false);
-  const [error,     setError]       = useState('');
+  const [signingIn, setSigningIn] = useState(false);
+  const [error,     setError]     = useState('');
 
   // Already logged in → go straight to wizard
   useEffect(() => {
@@ -42,18 +44,14 @@ export default function Login() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-      navigate('/wizard', { replace: true });
+      // Browser is redirecting to Google — no navigate() needed here
     } catch (err) {
-      // Firebase auth/popup-closed-by-user is not an error worth showing
-      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        setError(err.message || 'Sign-in failed. Please try again.');
-      }
-    } finally {
+      setError(err.message || 'Sign-in failed. Please try again.');
       setSigningIn(false);
     }
   };
 
-  if (loading) return null;  // ProtectedRoute shows its own spinner for /wizard; here just blank
+  if (loading) return null;
 
   return (
     <div className="min-h-screen bg-navy-900 flex flex-col items-center justify-center px-4 py-12">
@@ -69,14 +67,16 @@ export default function Login() {
         <h1 className="text-xl font-bold text-navy-900 text-center mb-1">Sign in to IRBWiz</h1>
         <p className="text-sm text-slate-500 text-center mb-7">Access your protocols and documents</p>
 
-        {/* Firebase not configured warning */}
-        {!firebaseReady && (
+        {/* Supabase not configured warning */}
+        {!supabaseReady && (
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5 text-xs text-amber-800">
             <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-500" />
             <span>
-              Firebase is not configured. Add{' '}
-              <code className="font-mono bg-amber-100 px-1 rounded">VITE_FIREBASE_*</code>{' '}
-              variables to your <code className="font-mono bg-amber-100 px-1 rounded">.env</code> file
+              Supabase is not configured. Add{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_URL</code>{' '}
+              and{' '}
+              <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_ANON_KEY</code>{' '}
+              to your <code className="font-mono bg-amber-100 px-1 rounded">.env</code> file
               to enable sign-in.
             </span>
           </div>
@@ -85,7 +85,7 @@ export default function Login() {
         {/* Google Sign-In button */}
         <button
           onClick={handleGoogleSignIn}
-          disabled={signingIn || !firebaseReady}
+          disabled={signingIn || !supabaseReady}
           className="w-full flex items-center justify-center gap-3 border border-slate-300 rounded-lg py-3 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {signingIn ? (
@@ -94,7 +94,7 @@ export default function Login() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
               </svg>
-              Signing in…
+              Redirecting to Google…
             </>
           ) : (
             <>
