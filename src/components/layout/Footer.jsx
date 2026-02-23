@@ -10,6 +10,9 @@ const MUTED   = '#94a3b8';
 const SOFT    = '#64748b';
 const BRIGHT  = '#e2e8f0';
 const GOLD    = '#fbbf24';
+const GREEN   = '#10b981';   // Symbiotic Scholar
+const PURPLE  = '#a78bfa';   // Dr. Dissertation
+const TEAL    = '#2dd4bf';   // Peer-Review PRO
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -54,10 +57,9 @@ export default function Footer() {
           <h4 style={{ fontSize: 13, fontWeight: 700, color: BRIGHT, marginBottom: 14 }}>
             Symbiotic Scholar
           </h4>
-          <FooterLink href="https://symbioticscholar.com" external label="Symbiotic Scholar" highlight />
-          <FooterLink href="https://www.doctordissertation.com" external label="Dr. Dissertation" />
-          <FooterLink href="https://peerreviewpro.com" external label="Peer-Review PRO" />
-          <FooterLink href="#" label="IRBWiz" highlight />
+          <FooterLink href="https://www.doctordissertation.com" external label="Dr. Dissertation" color={PURPLE} />
+          <FooterLink href="https://peerreviewpro.com" external label="Peer-Review PRO" color={TEAL} />
+          <FooterLink href="#" label="IRBWiz" color={GOLD} />
         </div>
       </div>
 
@@ -96,24 +98,24 @@ export default function Footer() {
       }}>
         Part of the{' '}
         <a href="https://symbioticscholar.com" target="_blank" rel="noopener noreferrer"
-           style={{ color: GOLD, textDecoration: 'none' }}>Symbiotic Scholar</a>
+           style={{ color: GREEN, textDecoration: 'none' }}>Symbiotic Scholar</a>
         {' '}family of AI-powered academic tools.{' '}
         Also see:{' '}
         <a href="https://www.doctordissertation.com" target="_blank" rel="noopener noreferrer"
-           style={{ color: GOLD, textDecoration: 'none' }}>Dr. Dissertation</a>
+           style={{ color: PURPLE, textDecoration: 'none' }}>Dr. Dissertation</a>
         {' '}·{' '}
         <a href="https://peerreviewpro.com" target="_blank" rel="noopener noreferrer"
-           style={{ color: GOLD, textDecoration: 'none' }}>Peer-Review PRO</a>
+           style={{ color: TEAL, textDecoration: 'none' }}>Peer-Review PRO</a>
       </div>
     </footer>
   );
 }
 
-function FooterLink({ href, label, external = false, highlight = false }) {
+function FooterLink({ href, label, external = false, color = MUTED }) {
   const style = {
     display: 'block',
     fontSize: 13,
-    color: highlight ? GOLD : '#94a3b8',
+    color,
     textDecoration: 'none',
     marginBottom: 9,
   };
