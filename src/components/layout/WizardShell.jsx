@@ -1,9 +1,10 @@
 import { useWizard, STEPS } from '../../context/WizardContext';
 import { StepNav } from './StepNav';
 import { ReviewBadge } from './ReviewBadge';
+import IRBWizLogo from './IRBWizLogo';
 import { IssueList } from '../ui/InfoBox';
 import { getIssueCount } from '../../utils/consistencyChecker';
-import { AlertCircle, AlertTriangle, Shield } from 'lucide-react';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 
 // Step components (lazy import pattern)
@@ -36,11 +37,7 @@ export function WizardShell() {
       <header className="bg-navy-800 text-white shadow-md no-print">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Shield size={24} className="text-gold-400" />
-            <div>
-              <h1 className="text-base font-bold leading-tight">IRB Protocol Wizard</h1>
-              <p className="text-xs text-navy-200">Symbiotic Scholar Suite · University of Bridgeport</p>
-            </div>
+            <IRBWizLogo size={36} variant="full" className="text-white" />
           </div>
           <div className="flex items-center gap-3">
             {errors > 0 && (
