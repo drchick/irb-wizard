@@ -27,7 +27,7 @@ export default function IRBWizLogo({ size = 40, variant = 'icon', theme = 'dark'
   const capW    = Math.round(size * 0.90);            // rendered cap width (wider to stay over IR at larger text)
   const capH    = Math.round(size * 0.56);            // rendered cap height
   const capHang = Math.round(capH * 0.72);            // paddingTop so cap bottom just grazes letter-tops
-  const wordSz  = Math.round(size * 0.64);            // IRBWiz font-size — larger so width ≈ sub-brand width
+  const wordSz  = Math.round(size * 0.78);            // IRBWiz font-size — wider so right edge ≈ right edge of sub-brand
   const subSz   = Math.max(9, Math.round(size * 0.245)); // Symbiotic Scholar font-size — slightly bigger too
   const gap     = Math.max(2, Math.round(size * 0.06));
 
@@ -123,7 +123,7 @@ export default function IRBWizLogo({ size = 40, variant = 'icon', theme = 'dark'
           fontFamily: "'Playfair Display', Georgia, 'Times New Roman', serif",
           fontSize:   wordSz,
           fontWeight: 900,
-          letterSpacing: '-0.01em',
+          letterSpacing: '0em',
           lineHeight: 1,
           color: wordIRB,
           whiteSpace: 'nowrap',
