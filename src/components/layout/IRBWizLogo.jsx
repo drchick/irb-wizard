@@ -24,11 +24,11 @@ export default function IRBWizLogo({ size = 40, variant = 'icon', theme = 'dark'
   const wordSub = isDark ? 'rgba(255,255,255,0.50)' : '#64748b';
 
   // ── Sizes ──────────────────────────────────────────────────────────────────
-  const capW    = Math.round(size * 0.78);            // rendered cap width
-  const capH    = Math.round(size * 0.52);            // rendered cap height
+  const capW    = Math.round(size * 0.90);            // rendered cap width (wider to stay over IR at larger text)
+  const capH    = Math.round(size * 0.56);            // rendered cap height
   const capHang = Math.round(capH * 0.72);            // paddingTop so cap bottom just grazes letter-tops
-  const wordSz  = Math.round(size * 0.54);            // IRBWiz font-size
-  const subSz   = Math.max(8, Math.round(size * 0.215)); // Symbiotic Scholar font-size
+  const wordSz  = Math.round(size * 0.64);            // IRBWiz font-size — larger so width ≈ sub-brand width
+  const subSz   = Math.max(9, Math.round(size * 0.245)); // Symbiotic Scholar font-size — slightly bigger too
   const gap     = Math.max(2, Math.round(size * 0.06));
 
   // ── Mortarboard SVG paths (44 × 44 internal viewBox) ──────────────────────

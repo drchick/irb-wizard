@@ -44,9 +44,9 @@ export default function Footer() {
             IRBWiz
           </h4>
           <FooterLink href="/irb-review-guide.html" label="IRB Review Guide" />
-          <FooterLink href="#" label="Protocol Checklist" />
-          <FooterLink href="#" label="Consent Templates" />
-          <FooterLink href="#" label="AI Pre-Review" />
+          <FooterLink href="/" label="Protocol Checklist" />
+          <FooterLink href="/" label="Consent Templates" />
+          <FooterLink href="/" label="AI Pre-Review" />
         </div>
 
         {/* Resources column */}
