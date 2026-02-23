@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWizard, STEPS } from '../../context/WizardContext';
+import { useAuth } from '../../context/AuthContext';
 import { StepNav } from './StepNav';
 import { ReviewBadge } from './ReviewBadge';
 import IRBWizLogo from './IRBWizLogo';
@@ -29,10 +31,17 @@ const STEP_COMPONENTS = {
 
 export function WizardShell() {
   const { currentStep, nextStep, prevStep, reviewResult, consistencyIssues, formData } = useWizard();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const StepComponent = STEP_COMPONENTS[currentStep];
   const errors   = getIssueCount(consistencyIssues, 'error');
   const warnings = getIssueCount(consistencyIssues, 'warning');
   const currentStepMeta = STEPS.find(s => s.id === currentStep);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login', { replace: true });
+  };
 
   // ── Step completion soft warning ─────────────────────────────────────────
   const [pendingWarning, setPendingWarning] = useState(null);
@@ -70,6 +79,29 @@ export function WizardShell() {
               </span>
             )}
             <ReviewBadge type={reviewResult.type} compact />
+
+            {/* User avatar + sign out */}
+            {user && (
+              <div className="flex items-center gap-2 ml-1 pl-3 border-l border-navy-600">
+                {user.photoURL && (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || 'User'}
+                    className="w-7 h-7 rounded-full border border-navy-500"
+                  />
+                )}
+                <span className="text-xs text-slate-300 hidden sm:block max-w-[120px] truncate">
+                  {user.displayName || user.email}
+                </span>
+                <button
+                  onClick={handleSignOut}
+                  className="text-xs text-slate-400 hover:text-white transition-colors ml-0.5"
+                  title="Sign out"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
