@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useCallback } from 'react';
+import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import { classifyReview } from '../utils/reviewClassifier';
 import { checkConsistency } from '../utils/consistencyChecker';
 
@@ -213,6 +213,15 @@ function wizardReducer(state, action) {
         visitedSteps: new Set([...state.visitedSteps, action.step]),
       };
     }
+    case 'LOAD_FORMDATA': {
+      // Load a complete formData object (e.g. a sample study) and jump to Step 1
+      return {
+        ...initialState,
+        formData: { ...initialFormData, ...action.formData },
+        currentStep: 1,
+        visitedSteps: new Set([1]),
+      };
+    }
     case 'RESET': {
       return initialState;
     }
@@ -232,6 +241,20 @@ const WizardContext = createContext(null);
 
 export function WizardProvider({ children }) {
   const [state, dispatch] = useReducer(wizardReducer, initialState);
+
+  // ── Example loader: if /examples page set a pending load, apply it once ──
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('irb_wizard_load_example');
+      if (raw) {
+        const formData = JSON.parse(raw);
+        localStorage.removeItem('irb_wizard_load_example');
+        dispatch({ type: 'LOAD_FORMDATA', formData });
+      }
+    } catch {
+      // malformed JSON — ignore
+    }
+  }, []); // runs once on mount
 
   const updateField = useCallback((section, field, value) => {
     dispatch({ type: 'UPDATE_FIELD', section, field, value });
@@ -256,6 +279,11 @@ export function WizardProvider({ children }) {
     dispatch({ type: 'PREV_STEP' });
   }, []);
 
+  /** Directly load a sample study formData and navigate to step 1. */
+  const loadExample = useCallback((formData) => {
+    dispatch({ type: 'LOAD_FORMDATA', formData });
+  }, []);
+
   // Derived values computed on each render (lightweight)
   const reviewResult = classifyReview(state.formData);
   const consistencyIssues = checkConsistency(state.formData);
@@ -273,6 +301,7 @@ export function WizardProvider({ children }) {
         goToStep,
         nextStep,
         prevStep,
+        loadExample,
         dispatch,
       }}
     >

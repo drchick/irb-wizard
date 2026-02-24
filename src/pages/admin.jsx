@@ -181,9 +181,15 @@ function UsageTable({ rows, compact = false }) {
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                   r.endpoint === 'ai-comprehensive'
                     ? 'bg-purple-900/60 text-purple-300'
+                    : r.endpoint === 'example-load'
+                    ? 'bg-blue-900/60 text-blue-300'
                     : 'bg-yellow-900/40 text-gold-400'
                 }`}>
-                  {r.endpoint === 'ai-comprehensive' ? 'Full Review' : 'Section Review'}
+                  {r.endpoint === 'ai-comprehensive'
+                    ? 'Full Review'
+                    : r.endpoint === 'example-load'
+                    ? 'Example Loaded'
+                    : 'Section Review'}
                 </span>
               </td>
               {!compact && <td className="px-4 py-3 text-slate-400">{r.section ?? '—'}</td>}

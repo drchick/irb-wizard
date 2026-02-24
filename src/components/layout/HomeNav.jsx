@@ -11,8 +11,9 @@ import { useRef, useEffect } from 'react';
 const NAV_LINKS = [
   { label: 'Features',     href: '/#features'    },
   { label: 'How It Works', href: '/#how-it-works' },
+  { label: 'Examples',     href: '/examples'      },
   { label: 'Pricing',      href: '/#pricing'      },
-  { label: 'Contact',      href: '/contact'                  },
+  { label: 'Contact',      href: '/contact'       },
 ];
 
 function UserDropdown({ user, onSignOut }) {
