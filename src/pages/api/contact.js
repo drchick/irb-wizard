@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     try {
       const resend = new Resend(resendKey);
       await resend.emails.send({
-        from:     'IRBWiz Contact <contact@irbwiz.help>',
+        from:     'IRBWiz Contact <irbwiz@doctordissertation.com>',
         to:       [adminEmail],
         reply_to: payload.email,
         subject:  `[IRBWiz] ${payload.subject} — ${payload.name}`,

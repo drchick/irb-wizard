@@ -8,12 +8,13 @@
  *   RESEND_API_KEY    — from resend.com (free: 3 k emails/month)
  *   ADMIN_EMAIL       — recipient for all admin notifications
  *
- * From addresses use the verified irbwiz.help domain.
+ * From addresses use the verified doctordissertation.com domain
+ * (shared across all Symbiotic Scholar tools — no extra DNS setup needed).
  */
 import { Resend } from 'resend';
 
 const ADMIN_EMAIL  = process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '';
-const FROM_NOREPLY = 'IRBWiz <hello@irbwiz.help>';
+const FROM_NOREPLY = 'IRBWiz <irbwiz@doctordissertation.com>';
 const ADMIN_PANEL  = 'https://irbwiz.help/admin';
 const WIZARD_URL   = 'https://irbwiz.help/wizard';
 
