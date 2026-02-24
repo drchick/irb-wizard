@@ -144,18 +144,11 @@ const PRIVACY_SECTIONS = [
   },
   {
     title: 'Data Storage & Security',
-    body: 'Account data, credits, and protocol inputs are stored in Supabase (hosted on AWS infrastructure). Data is encrypted in transit (TLS) and at rest. We retain your data for as long as your account is active. You may request deletion of your data at any time by emailing hello@symbioticscholar.com.',
+    body: 'Account data, credits, and protocol inputs are stored on AWS infrastructure. Data is encrypted in transit (TLS) and at rest. We retain your data for as long as your account is active. You may request deletion of your data at any time by emailing hello@symbioticscholar.com.',
   },
   {
     title: 'Third-Party Services',
-    body: (
-      <ul style={{ margin: 0, paddingLeft: 18 }}>
-        <li style={{ marginBottom: 6 }}><strong style={{ color: BRIGHT }}>Stripe</strong> — payment processing. Subject to Stripe's privacy policy.</li>
-        <li style={{ marginBottom: 6 }}><strong style={{ color: BRIGHT }}>Supabase</strong> — database and authentication.</li>
-        <li style={{ marginBottom: 6 }}><strong style={{ color: BRIGHT }}>Anthropic Claude API</strong> — AI-powered protocol review. Content submitted for AI analysis is subject to Anthropic's data use policy.</li>
-        <li><strong style={{ color: BRIGHT }}>Resend</strong> — transactional email delivery.</li>
-      </ul>
-    ),
+    body: 'IRBWiz uses industry-standard third-party services for payment processing, data storage, authentication, AI analysis, and email delivery. These providers may access data only as necessary to perform their specific function and are governed by their own privacy policies. We do not authorize any third party to use your data for purposes beyond delivering their service to us.',
   },
   {
     title: 'Cookies',
