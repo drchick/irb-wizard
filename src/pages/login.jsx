@@ -81,6 +81,12 @@ export default function Login() {
     setBusy(true);
     try {
       const { needsConfirmation } = await signUpWithEmail(email, password);
+      // Fire welcome email + admin notification (fire-and-forget, don't block UX)
+      fetch('/api/notify-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      }).catch(() => {});
       if (needsConfirmation) { setMode('confirm'); }
       else { router.replace('/wizard'); }
     } catch (err) {

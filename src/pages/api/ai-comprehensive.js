@@ -3,6 +3,7 @@
  */
 import Anthropic from '@anthropic-ai/sdk';
 import { extractJSON, SYSTEM_PROMPT, buildComprehensivePrompt } from '../../lib/ai-helpers';
+import { notifyAdminAIReview } from '../../lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -28,6 +29,7 @@ export default async function handler(req, res) {
     });
 
     logUsage({ user_email: userEmail, endpoint: 'ai-comprehensive', section: null }).catch(() => {});
+    notifyAdminAIReview({ userEmail, type: 'ai-comprehensive', section: null }).catch(() => {});
 
     return res.status(200).json(extractJSON(message.content[0].text.trim()));
   } catch (err) {
