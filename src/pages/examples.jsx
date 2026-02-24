@@ -10,7 +10,7 @@
  *
  * Admin tracking: loading an example fires POST /api/track-example.
  */
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import HomeNav from '../components/layout/HomeNav';
@@ -21,10 +21,15 @@ import { generateProtocolDescription,
          generateExemptConsentSheet,
          generateFullConsentForm }     from '../utils/documentGenerator';
 import {
+  generateProtocolDescriptionDocx,
+  generateFullConsentFormDocx,
+  generateExemptConsentSheetDocx,
+} from '../utils/docxGenerator';
+import {
   CheckCircle2, Clock, ShieldAlert,
   BookOpen, FlaskConical, BarChart3, FileText,
   ChevronDown, ChevronUp, ArrowRight, Sparkles,
-  Info, AlertTriangle, Lightbulb, FileSearch,
+  Info, AlertTriangle, Lightbulb,
   X, Download, ExternalLink,
 } from 'lucide-react';
 
@@ -32,34 +37,37 @@ import {
 const REVIEW_META = {
   EXEMPT: {
     label: 'Exempt', Icon: CheckCircle2,
-    bg:       'bg-emerald-900/40',
-    border:   'border-emerald-700/60',
+    bg:       'bg-navy-900/60',
+    border:   'border-emerald-700/50',
     text:     'text-emerald-400',
     dot:      'bg-emerald-400',
     pill:     'bg-emerald-900/70 text-emerald-300 border-emerald-700',
-    resultBg: 'bg-emerald-950/60 border-emerald-800/60',
+    resultBg: 'bg-navy-900 border-emerald-700/60',
+    accentBar: 'border-l-4 border-l-emerald-500',
     description:
       'Lowest oversight level. Excused from continuing review. Typically anonymous surveys, public data, or normal educational practices.',
   },
   EXPEDITED: {
     label: 'Expedited', Icon: Clock,
-    bg:       'bg-amber-900/30',
-    border:   'border-amber-700/60',
+    bg:       'bg-navy-900/60',
+    border:   'border-amber-700/50',
     text:     'text-amber-400',
     dot:      'bg-amber-400',
     pill:     'bg-amber-900/60 text-amber-300 border-amber-700',
-    resultBg: 'bg-amber-950/40 border-amber-800/50',
+    resultBg: 'bg-navy-900 border-amber-700/60',
+    accentBar: 'border-l-4 border-l-amber-500',
     description:
       'Reviewed by IRB Chair only. Minimal-risk research that doesn\'t qualify for exemption — recordings, identifiable interviews, minor venipuncture.',
   },
   FULL_BOARD: {
     label: 'Full Board', Icon: ShieldAlert,
-    bg:       'bg-red-900/30',
-    border:   'border-red-700/60',
+    bg:       'bg-navy-900/60',
+    border:   'border-red-700/50',
     text:     'text-red-400',
     dot:      'bg-red-400',
     pill:     'bg-red-900/60 text-red-300 border-red-700',
-    resultBg: 'bg-red-950/40 border-red-800/50',
+    resultBg: 'bg-navy-900 border-red-700/60',
+    accentBar: 'border-l-4 border-l-red-500',
     description:
       'Full committee vote required. Greater-than-minimal risk, prisoner research, or deception without proper debriefing.',
   },
@@ -85,7 +93,7 @@ function ReviewResultPanel({ result, meta }) {
   const topRecs  = (result.recommendations ?? []).slice(0, 2);
 
   return (
-    <div className={`rounded-xl border ${meta.resultBg} p-4 space-y-3`}>
+    <div className={`rounded-xl border ${meta.resultBg} ${meta.accentBar} p-4 space-y-3`}>
       <div className="flex items-center gap-2">
         <meta.Icon size={15} className={meta.text} />
         <span className={`font-bold text-sm ${meta.text}`}>
@@ -93,14 +101,14 @@ function ReviewResultPanel({ result, meta }) {
           {result.type === 'EXPEDITED'  && `Expedited — ${result.categoryLabel ?? ''}`}
           {result.type === 'FULL_BOARD' && 'Full Board Review Required'}
         </span>
-        <span className="ml-auto text-xs text-slate-500">
+        <span className="ml-auto text-xs text-slate-400">
           {Math.round((result.confidence ?? 0) * 100)}% confidence
         </span>
       </div>
 
       <ul className="space-y-1">
         {(result.reasons ?? []).map((r, i) => (
-          <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+          <li key={i} className="flex items-start gap-2 text-xs text-slate-200">
             <span className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${meta.dot}`} />
             {r}
           </li>
@@ -108,13 +116,13 @@ function ReviewResultPanel({ result, meta }) {
       </ul>
 
       {(result.flags ?? []).length > 0 && (
-        <div className="space-y-1 border-t border-navy-700/60 pt-2">
+        <div className="space-y-1 border-t border-navy-700 pt-2">
           {result.flags.slice(0, 2).map((f, i) => (
-            <div key={i} className="flex items-start gap-1.5 text-xs text-slate-400">
+            <div key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
               <FlagIcon size={11} className={
                 f.severity === 'high'   ? 'text-red-400 mt-0.5 shrink-0' :
                 f.severity === 'medium' ? 'text-amber-400 mt-0.5 shrink-0' :
-                'text-slate-500 mt-0.5 shrink-0'
+                'text-slate-400 mt-0.5 shrink-0'
               } />
               {f.message}
             </div>
@@ -123,13 +131,13 @@ function ReviewResultPanel({ result, meta }) {
       )}
 
       {topRecs.length > 0 && (
-        <div className="border-t border-navy-700/60 pt-2 space-y-1.5">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+        <div className="border-t border-navy-700 pt-2 space-y-1.5">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
             <Lightbulb size={10} /> Key Recommendations
           </p>
           {topRecs.map((rec, i) => (
-            <div key={i} className="text-xs text-slate-300">
-              <span className="font-semibold text-slate-200">{rec.title}: </span>
+            <div key={i} className="text-xs text-slate-200">
+              <span className="font-semibold text-white">{rec.title}: </span>
               {rec.body.length > 130 ? rec.body.slice(0, 130) + '…' : rec.body}
             </div>
           ))}
@@ -143,9 +151,10 @@ function ReviewResultPanel({ result, meta }) {
 function DocumentPreviewModal({ study, onClose, onOpenWizard }) {
   const isExempt = study.expectedReview === 'EXEMPT';
   const [tab, setTab] = useState('protocol');
+  const [docxLoading, setDocxLoading] = useState(false);
   const meta = REVIEW_META[study.expectedReview];
 
-  // Generate all three documents client-side
+  // Generate all three documents client-side (text)
   const docs = useMemo(() => ({
     protocol: generateProtocolDescription(study.formData),
     sheet:    isExempt
@@ -165,8 +174,8 @@ function DocumentPreviewModal({ study, onClose, onOpenWizard }) {
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  // Download helper
-  function handleDownload() {
+  // Download as .txt
+  function handleTxtDownload() {
     const text     = docs[tab];
     const filename = tab === 'protocol'
       ? `${study.id}_protocol.txt`
@@ -178,6 +187,33 @@ function DocumentPreviewModal({ study, onClose, onOpenWizard }) {
     URL.revokeObjectURL(url);
   }
 
+  // Download as .docx
+  const handleDocxDownload = useCallback(async () => {
+    setDocxLoading(true);
+    try {
+      let blob;
+      let filename;
+      if (tab === 'protocol') {
+        blob     = await generateProtocolDescriptionDocx(study.formData);
+        filename = `${study.id}_protocol.docx`;
+      } else if (isExempt) {
+        blob     = await generateExemptConsentSheetDocx(study.formData);
+        filename = `${study.id}_info_sheet.docx`;
+      } else {
+        blob     = await generateFullConsentFormDocx(study.formData);
+        filename = `${study.id}_consent_form.docx`;
+      }
+      const url = URL.createObjectURL(blob);
+      const a   = Object.assign(document.createElement('a'), { href: url, download: filename });
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('DOCX generation failed', err);
+    } finally {
+      setDocxLoading(false);
+    }
+  }, [tab, isExempt, study]);
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-navy-950/98 backdrop-blur-sm">
       {/* ── Modal header ── */}
@@ -188,17 +224,27 @@ function DocumentPreviewModal({ study, onClose, onOpenWizard }) {
         </span>
         <div className="flex-1 min-w-0">
           <h2 className="text-white font-bold text-base truncate">{study.shortTitle}</h2>
-          <p className="text-slate-500 text-xs hidden sm:block">
+          <p className="text-slate-400 text-xs hidden sm:block">
             Sample protocol document — generated by IRBWiz document engine
           </p>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={handleDownload}
-            title="Download document as .txt"
-            className="hidden sm:flex items-center gap-1.5 border border-navy-600 hover:border-navy-400 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
-            <Download size={13} /> Download
+          {/* .docx download — primary */}
+          <button onClick={handleDocxDownload} disabled={docxLoading}
+            title="Download as Word document (.docx)"
+            className="hidden sm:flex items-center gap-1.5 bg-navy-700 hover:bg-navy-600 disabled:opacity-60 border border-navy-500 hover:border-navy-400 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+            {docxLoading
+              ? <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              : <Download size={13} />}
+            {docxLoading ? 'Generating…' : 'Download .docx'}
+          </button>
+          {/* .txt download — secondary */}
+          <button onClick={handleTxtDownload}
+            title="Download as plain text (.txt)"
+            className="hidden md:flex items-center gap-1.5 border border-navy-600 hover:border-navy-400 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
+            <Download size={13} /> .txt
           </button>
           <button onClick={() => { onClose(); onOpenWizard(study); }}
             className="flex items-center gap-1.5 bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold text-xs px-3 py-1.5 rounded-lg transition-colors">
@@ -284,7 +330,7 @@ function StudyCard({ study, onPreview, onLoad }) {
               </span>
             </div>
             <h3 className="text-white font-bold text-base leading-snug">{study.shortTitle}</h3>
-            <p className="text-slate-400 text-sm mt-1 leading-relaxed">{study.description}</p>
+            <p className="text-slate-300 text-sm mt-1 leading-relaxed">{study.description}</p>
           </div>
         </div>
 
@@ -295,7 +341,7 @@ function StudyCard({ study, onPreview, onLoad }) {
 
         {/* Expand rationale */}
         <button onClick={() => setExpanded(e => !e)}
-          className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
+          className="mt-3 flex items-center gap-1.5 text-xs text-slate-300 hover:text-white transition-colors">
           {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           {expanded ? 'Hide details' : 'Why this review type?'}
         </button>
@@ -303,26 +349,26 @@ function StudyCard({ study, onPreview, onLoad }) {
 
       {/* Expanded rationale panel */}
       {expanded && (
-        <div className="px-5 pb-5 space-y-4 border-t border-navy-700/60 pt-4">
+        <div className="px-5 pb-5 space-y-4 border-t border-navy-700 pt-4">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Key Protocol Factors</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Key Protocol Factors</p>
             <ul className="space-y-1.5">
               {study.keyFactors.map((f, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                <li key={i} className="flex items-start gap-2 text-sm text-slate-200">
                   <span className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${meta.dot}`} />
                   {f}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="rounded-xl bg-navy-900/60 border border-navy-700 p-4">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+          <div className="rounded-xl bg-navy-800 border border-navy-600 p-4">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Info size={12} /> Regulatory Rationale
             </p>
-            <p className="text-sm text-slate-300 leading-relaxed">{study.reviewRationale}</p>
+            <p className="text-sm text-slate-200 leading-relaxed">{study.reviewRationale}</p>
           </div>
-          <p className="text-xs text-slate-500">
-            <span className="font-medium text-slate-400">Methodology:</span> {study.methodology}
+          <p className="text-xs text-slate-400">
+            <span className="font-medium text-slate-300">Methodology:</span> {study.methodology}
           </p>
         </div>
       )}
@@ -436,7 +482,7 @@ export default function ExamplesPage() {
                   <meta.Icon size={16} className={meta.text} />
                   <span className={`font-bold text-sm ${meta.text}`}>{meta.label} Review</span>
                 </div>
-                <p className="text-slate-400 text-xs leading-relaxed">{meta.description}</p>
+                <p className="text-slate-300 text-xs leading-relaxed">{meta.description}</p>
               </div>
             ))}
           </div>
