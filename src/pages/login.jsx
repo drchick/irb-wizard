@@ -151,23 +151,8 @@ export default function Login() {
           </div>
         )}
 
-        {/* Google button */}
-        {mode !== 'forgot' && (
-          <>
-            <button
-              onClick={handleGoogle}
-              disabled={busy || !supabaseReady}
-              className="w-full flex items-center justify-center gap-3 border border-slate-300 rounded-lg py-2.5 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-4">
-              {busy ? <Spinner /> : <GoogleIcon />}
-              {busy ? 'Redirecting…' : 'Continue with Google'}
-            </button>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400">or</span>
-              <div className="flex-1 h-px bg-slate-200" />
-            </div>
-          </>
-        )}
+        {/* Google button — temporarily disabled until dedicated Supabase project is configured */}
+        {/* TODO: re-enable once IRBWiz has its own Supabase project with correct Site URL */}
 
         {/* Sign In form */}
         {mode === 'signin' && (
