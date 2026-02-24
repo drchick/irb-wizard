@@ -214,12 +214,16 @@ function wizardReducer(state, action) {
       };
     }
     case 'LOAD_FORMDATA': {
-      // Load a complete formData object (e.g. a sample study) and jump to Step 1
+      // Load a complete formData object (e.g. a sample study).
+      // action.targetStep (default 9) sets which step to open.
+      // All steps up to targetStep are marked visited so the nav is fully accessible.
+      const target = action.targetStep ?? 9;
+      const visited = new Set(Array.from({ length: target }, (_, i) => i + 1));
       return {
         ...initialState,
         formData: { ...initialFormData, ...action.formData },
-        currentStep: 1,
-        visitedSteps: new Set([1]),
+        currentStep: target,
+        visitedSteps: visited,
       };
     }
     case 'RESET': {
@@ -247,9 +251,12 @@ export function WizardProvider({ children }) {
     try {
       const raw = localStorage.getItem('irb_wizard_load_example');
       if (raw) {
-        const formData = JSON.parse(raw);
+        const payload = JSON.parse(raw);
         localStorage.removeItem('irb_wizard_load_example');
-        dispatch({ type: 'LOAD_FORMDATA', formData });
+        // payload may be { formData, targetStep } (new format) or bare formData (legacy)
+        const formData   = payload.formData ?? payload;
+        const targetStep = payload.targetStep ?? 9;
+        dispatch({ type: 'LOAD_FORMDATA', formData, targetStep });
       }
     } catch {
       // malformed JSON — ignore
@@ -279,9 +286,9 @@ export function WizardProvider({ children }) {
     dispatch({ type: 'PREV_STEP' });
   }, []);
 
-  /** Directly load a sample study formData and navigate to step 1. */
-  const loadExample = useCallback((formData) => {
-    dispatch({ type: 'LOAD_FORMDATA', formData });
+  /** Directly load a sample study formData and jump to targetStep (default 9). */
+  const loadExample = useCallback((formData, targetStep = 9) => {
+    dispatch({ type: 'LOAD_FORMDATA', formData, targetStep });
   }, []);
 
   // Derived values computed on each render (lightweight)
