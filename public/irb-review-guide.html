@@ -754,9 +754,9 @@
   <div class="footer-bottom">
     <span>© <script>document.write(new Date().getFullYear())</script> IRBWiz by Symbiotic Scholar. All rights reserved.</span>
     <div class="footer-bottom-links">
-      <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener">Privacy Policy</a>
-      <a href="https://irbwiz.help/terms" target="_blank" rel="noopener">Terms of Service</a>
-      <button onclick="openDisclaimer()" style="background:none;border:none;padding:0;color:#64748b;cursor:pointer;font-size:12px;font-family:inherit;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Legal Disclaimer</button>
+      <button onclick="openModal('privacy')"    style="background:none;border:none;padding:0;color:#64748b;cursor:pointer;font-size:12px;font-family:inherit;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Privacy Policy</button>
+      <button onclick="openModal('terms')"      style="background:none;border:none;padding:0;color:#64748b;cursor:pointer;font-size:12px;font-family:inherit;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Terms of Service</button>
+      <button onclick="openModal('disclaimer')" style="background:none;border:none;padding:0;color:#64748b;cursor:pointer;font-size:12px;font-family:inherit;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Legal Disclaimer</button>
     </div>
   </div>
 
@@ -768,59 +768,94 @@
   </div>
 </footer>
 
-<!-- Legal Disclaimer Modal -->
-<div id="disclaimer-modal" onclick="if(event.target===this)closeDisclaimer()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(2,10,26,0.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;">
-  <div style="background:#0e1e35;border:1px solid #1a2e4a;border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.6);">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid #1a2e4a;">
-      <div>
-        <h2 style="color:#e2e8f0;font-size:17px;font-weight:700;margin:0;">Legal &amp; Accuracy Disclaimer</h2>
-        <p style="color:#94a3b8;font-size:12px;margin:4px 0 0;line-height:1.4;">Please read before relying on IRBWiz output for a real submission</p>
-      </div>
-      <button onclick="closeDisclaimer()" style="background:none;border:1px solid #1a2e4a;border-radius:8px;color:#94a3b8;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-left:12px;">✕</button>
-    </div>
-    <div style="padding:20px 24px 24px;">
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <span style="font-size:18px;">✅</span>
-            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">Regulatory Framework Is Accurate</h3>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">The review categories (Exempt, Expedited, Full Board), CFR citations (e.g., 45 CFR 46.104(d), 45 CFR 46.110), and document templates are grounded in real federal regulations — the Common Rule (45 CFR 46) and the Belmont Report. The classification logic follows the actual statutory decision criteria used by IRBs nationwide.</p>
-        </div>
-        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <span style="font-size:18px;">⚖️</span>
-            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">IRBs Have Final Authority</h3>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">IRBs hold regulatory discretion in applying the Common Rule. Two IRBs reviewing the same protocol may reach different conclusions based on institutional policies, local context, or reviewer judgment. IRBWiz provides the most defensible classification based on the information you enter — it does not constitute a binding determination and cannot predict your institution's specific decision.</p>
-        </div>
-        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <span style="font-size:18px;">📄</span>
-            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">Preparation Aid — Not IRB Approval</h3>
-          </div>
-          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">IRBWiz generates starting-point documents for IRB submission: protocol descriptions, consent forms, recruitment materials, and special forms. All generated documents must be reviewed by your institution's IRB and may be modified before or after submission. Use of this tool does not constitute IRB approval, guarantee approval, or substitute for consultation with your institution's IRB office.</p>
-        </div>
-      </div>
-      <p style="color:#64748b;font-size:11px;line-height:1.6;margin-top:18px;margin-bottom:0;border-top:1px solid #1a2e4a;padding-top:14px;">
-        IRBWiz is an AI-assisted preparation tool developed by <a href="https://symbioticscholar.com" target="_blank" rel="noopener" style="color:#10b981;">Symbiotic Scholar</a>. Always consult your institution's IRB office before submitting any research protocol. For questions, contact <a href="mailto:hello@symbioticscholar.com" style="color:#fbbf24;">hello@symbioticscholar.com</a>.
-      </p>
-    </div>
+<!-- ── Shared Policy Modal overlay ───────────────────────────────────────── -->
+<div id="policy-modal" onclick="if(event.target===this)closeModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(2,10,26,0.88);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#0e1e35;border:1px solid #1a2e4a;border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.6);">
+    <div id="modal-content"></div>
   </div>
 </div>
 
 <script>
-function openDisclaimer() {
-  var m = document.getElementById('disclaimer-modal');
+var MODAL_DATA = {
+  privacy: {
+    title: 'Privacy Policy',
+    subtitle: 'Effective date: February 2026 · IRBWiz by Symbiotic Scholar',
+    sections: [
+      { t: 'Information We Collect', b: '<ul><li><strong>Account information</strong> — name, email address, and institution when you create an account.</li><li><strong>Protocol content</strong> — the research details you enter into the wizard to generate documents. This data is stored to provide the service.</li><li><strong>Usage data</strong> — pages visited, features used, and study types submitted, used to improve the product.</li><li><strong>Payment information</strong> — processed entirely by Stripe. We never store or see full card numbers or banking details.</li></ul>' },
+      { t: 'How We Use Your Information', b: '<ul><li>To provide, operate, and improve IRBWiz.</li><li>To process payments via Stripe and send purchase receipts.</li><li>To send transactional emails (account notices, support responses).</li><li><strong>We do not sell your personal data</strong> to third parties.</li><li><strong>We do not use your protocol content to train AI models.</strong></li></ul>' },
+      { t: 'Data Storage & Security', b: 'Account data, credits, and protocol inputs are stored in Supabase (hosted on AWS infrastructure). Data is encrypted in transit (TLS) and at rest. We retain your data for as long as your account is active. You may request deletion of your data at any time by emailing hello@symbioticscholar.com.' },
+      { t: 'Third-Party Services', b: '<ul><li><strong>Stripe</strong> — payment processing. Subject to Stripe\'s privacy policy.</li><li><strong>Supabase</strong> — database and authentication.</li><li><strong>Anthropic Claude API</strong> — AI-powered protocol review. Content submitted for AI analysis is subject to Anthropic\'s data use policy.</li><li><strong>Resend</strong> — transactional email delivery.</li></ul>' },
+      { t: 'Cookies', b: 'We use essential cookies for authentication and session management only. We do not use advertising, tracking, or analytics cookies.' },
+      { t: 'Your Privacy Rights', b: 'You may request access to, correction of, or deletion of your personal data at any time by contacting hello@symbioticscholar.com. California residents have additional rights under the CCPA. EU/EEA residents have rights under the GDPR, including the right to data portability.' },
+      { t: 'Contact', b: 'For privacy questions or data requests, email <a href="mailto:hello@symbioticscholar.com" style="color:#fbbf24;">hello@symbioticscholar.com</a>. IRBWiz is operated by Symbiotic Scholar.' }
+    ],
+    footnote: 'Last updated: February 2026. This policy applies to irbwiz.help and related services operated by Symbiotic Scholar.'
+  },
+  terms: {
+    title: 'Terms of Service',
+    subtitle: 'Effective date: February 2026 · IRBWiz by Symbiotic Scholar',
+    sections: [
+      { t: 'Acceptance of Terms', b: 'By accessing or using IRBWiz, you agree to be bound by these Terms of Service. If you do not agree, please do not use the service. We may update these terms from time to time; continued use constitutes acceptance of the updated terms.' },
+      { t: 'Description of Service', b: 'IRBWiz is an AI-assisted tool for preparing IRB protocol documents, including protocol descriptions, consent forms, and recruitment materials. It is a preparation aid only. Use of IRBWiz does not constitute IRB review, approval, or compliance certification.' },
+      { t: 'User Responsibilities', b: '<ul><li>You are solely responsible for the accuracy and completeness of the information you enter.</li><li>You must review all generated documents before submission to your institution\'s IRB.</li><li>You must comply with your institution\'s IRB policies, procedures, and any applicable federal, state, or local regulations.</li><li>You may not use IRBWiz for unlawful purposes or to generate documents for research involving deception, coercion, or undue risk to human subjects without proper oversight.</li></ul>' },
+      { t: 'Payment Terms', b: '<ul><li>Credits are deducted when AI-powered features are used and are non-refundable once consumed.</li><li>Unused credits from single or pack purchases are non-refundable unless required by applicable law.</li><li>Annual plans may be cancelled before renewal; no partial-year refunds are issued.</li><li>Pricing is subject to change with 30 days\' advance notice.</li></ul>' },
+      { t: 'No Guarantee of IRB Approval', b: 'IRBWiz provides assistance with protocol preparation based on 45 CFR 46 and general IRB best practices. We make no representation or warranty that any protocol prepared using IRBWiz will be approved by any IRB. Approval decisions rest entirely with the reviewing institution.' },
+      { t: 'Intellectual Property', b: 'The documents you generate using IRBWiz belong to you. IRBWiz\'s software, branding, underlying algorithms, document templates, and all associated intellectual property remain the exclusive property of Symbiotic Scholar. You may not reverse-engineer, copy, or redistribute the platform.' },
+      { t: 'Limitation of Liability', b: 'To the maximum extent permitted by law, IRBWiz and Symbiotic Scholar are not liable for any direct, indirect, incidental, or consequential damages arising from your use of the service — including, without limitation, IRB rejection, research delays, or regulatory non-compliance. The service is provided "as is" without warranties of any kind.' },
+      { t: 'Governing Law', b: 'These Terms are governed by the laws of the State of Connecticut, without regard to conflict of law principles. Any disputes shall be resolved in the courts of Fairfield County, Connecticut.' },
+      { t: 'Contact', b: 'Questions about these Terms? Email <a href="mailto:hello@symbioticscholar.com" style="color:#fbbf24;">hello@symbioticscholar.com</a>.' }
+    ],
+    footnote: 'Last updated: February 2026. By using IRBWiz you agree to these terms.'
+  },
+  disclaimer: {
+    title: 'Legal &amp; Accuracy Disclaimer',
+    subtitle: 'Please read before relying on IRBWiz output for a real submission',
+    sections: [
+      { t: '✅  Regulatory Framework Is Accurate', b: 'The review categories (Exempt, Expedited, Full Board), CFR citations (e.g., 45 CFR 46.104(d), 45 CFR 46.110), and document templates are grounded in real federal regulations — the Common Rule (45 CFR 46) and the Belmont Report. The classification logic follows the actual statutory decision criteria used by IRBs nationwide.' },
+      { t: '⚖️  IRBs Have Final Authority', b: 'IRBs hold regulatory discretion in applying the Common Rule. Two IRBs reviewing the same protocol may reach different conclusions based on institutional policies, local context, or reviewer judgment. IRBWiz provides the most defensible classification based on the information you enter — it does not constitute a binding determination and cannot predict your institution\'s specific decision.' },
+      { t: '📄  Preparation Aid — Not IRB Approval', b: 'IRBWiz generates starting-point documents for IRB submission: protocol descriptions, consent forms, recruitment materials, and special forms. All generated documents must be reviewed by your institution\'s IRB and may be modified before or after submission. Use of this tool does not constitute IRB approval, guarantee approval, or substitute for consultation with your institution\'s IRB office.' }
+    ],
+    footnote: 'IRBWiz is an AI-assisted preparation tool developed by <a href="https://symbioticscholar.com" target="_blank" rel="noopener" style="color:#10b981;">Symbiotic Scholar</a>. Always consult your institution\'s IRB office before submitting any research protocol. Questions? Email <a href="mailto:hello@symbioticscholar.com" style="color:#fbbf24;">hello@symbioticscholar.com</a>.'
+  }
+};
+
+function openModal(type) {
+  var data = MODAL_DATA[type];
+  var html = '<div style="position:sticky;top:0;z-index:1;background:#0e1e35;display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid #1a2e4a;">'
+    + '<div><h2 style="color:#e2e8f0;font-size:17px;font-weight:700;margin:0;">' + data.title + '</h2>'
+    + (data.subtitle ? '<p style="color:#94a3b8;font-size:12px;margin:4px 0 0;line-height:1.4;">' + data.subtitle + '</p>' : '')
+    + '</div>'
+    + '<button onclick="closeModal()" style="background:none;border:1px solid #1a2e4a;border-radius:8px;color:#94a3b8;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-left:12px;">✕</button>'
+    + '</div>'
+    + '<div style="padding:20px 24px 24px;">';
+
+  for (var i = 0; i < data.sections.length; i++) {
+    var s = data.sections[i];
+    html += '<div>'
+      + '<h3 style="color:#e2e8f0;font-size:13px;font-weight:700;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.05em;">' + s.t + '</h3>'
+      + '<div style="color:#94a3b8;font-size:13px;line-height:1.75;">' + s.b + '</div>'
+      + (i < data.sections.length - 1 ? '<div style="border-bottom:1px solid #1a2e4a;margin-top:20px;"></div>' : '')
+      + '</div>';
+  }
+
+  if (data.footnote) {
+    html += '<p style="color:#64748b;font-size:11px;line-height:1.6;margin-top:24px;margin-bottom:0;border-top:1px solid #1a2e4a;padding-top:14px;">' + data.footnote + '</p>';
+  }
+  html += '</div>';
+
+  document.getElementById('modal-content').innerHTML = html;
+  var m = document.getElementById('policy-modal');
   m.style.display = 'flex';
-  document.addEventListener('keydown', handleDisclaimerKey);
+  m.scrollTop = 0;
+  document.addEventListener('keydown', handleModalKey);
 }
-function closeDisclaimer() {
-  var m = document.getElementById('disclaimer-modal');
-  m.style.display = 'none';
-  document.removeEventListener('keydown', handleDisclaimerKey);
+
+function closeModal() {
+  document.getElementById('policy-modal').style.display = 'none';
+  document.removeEventListener('keydown', handleModalKey);
 }
-function handleDisclaimerKey(e) { if (e.key === 'Escape') closeDisclaimer(); }
+
+function handleModalKey(e) { if (e.key === 'Escape') closeModal(); }
 </script>
 
 
