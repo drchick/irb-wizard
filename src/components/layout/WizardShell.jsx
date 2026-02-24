@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useWizard, STEPS } from '../../context/WizardContext';
 import { useAuth } from '../../context/AuthContext';
 import { StepNav } from './StepNav';
@@ -9,7 +10,7 @@ import Footer from './Footer';
 import { IssueList } from '../ui/InfoBox';
 import { getIssueCount } from '../../utils/consistencyChecker';
 import { getMissingFields } from '../../utils/stepRequirements';
-import { AlertCircle, AlertTriangle } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ChevronDown, UserCircle, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 
 // Step components (lazy import pattern)
@@ -80,28 +81,8 @@ export function WizardShell() {
             )}
             <ReviewBadge type={reviewResult.type} compact />
 
-            {/* User avatar + sign out */}
-            {user && (
-              <div className="flex items-center gap-2 ml-1 pl-3 border-l border-navy-600">
-                {user.user_metadata?.avatar_url && (
-                  <img
-                    src={user.user_metadata.avatar_url}
-                    alt={user.user_metadata?.full_name || 'User'}
-                    className="w-7 h-7 rounded-full border border-navy-500"
-                  />
-                )}
-                <span className="text-xs text-slate-300 hidden sm:block max-w-[120px] truncate">
-                  {user.user_metadata?.full_name || user.email}
-                </span>
-                <button
-                  onClick={handleSignOut}
-                  className="text-xs text-slate-400 hover:text-white transition-colors ml-0.5"
-                  title="Sign out"
-                >
-                  Sign out
-                </button>
-              </div>
-            )}
+            {/* User menu */}
+            {user && <UserMenu user={user} onSignOut={handleSignOut} />}
           </div>
         </div>
       </header>
@@ -205,6 +186,63 @@ export function WizardShell() {
 
       {/* ── Footer ── */}
       <Footer />
+    </div>
+  );
+}
+
+// ── User Menu Dropdown ────────────────────────────────────────────────────────
+function UserMenu({ user, onSignOut }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const avatar = user.user_metadata?.avatar_url;
+  const name   = user.user_metadata?.full_name || user.email;
+
+  return (
+    <div className="relative ml-1 pl-3 border-l border-navy-600" ref={ref}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+      >
+        {avatar
+          ? <img src={avatar} alt={name} className="w-7 h-7 rounded-full border border-navy-500" />
+          : <UserCircle size={26} className="text-slate-400" />
+        }
+        <span className="text-xs hidden sm:block max-w-[120px] truncate">{name}</span>
+        <ChevronDown size={12} className={clsx('transition-transform', open && 'rotate-180')} />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-52 bg-navy-800 border border-navy-600 rounded-xl shadow-xl z-50 overflow-hidden">
+          {/* User info header */}
+          <div className="px-4 py-3 border-b border-navy-700">
+            <p className="text-xs font-semibold text-white truncate">{name}</p>
+            <p className="text-xs text-slate-400 truncate">{user.email}</p>
+          </div>
+          {/* Menu items */}
+          <div className="py-1">
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-300 hover:bg-navy-700 hover:text-white transition-colors"
+            >
+              <UserCircle size={15} /> My Account
+            </Link>
+            <button
+              onClick={() => { setOpen(false); onSignOut(); }}
+              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-300 hover:bg-navy-700 hover:text-white transition-colors"
+            >
+              <LogOut size={15} /> Sign Out
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
