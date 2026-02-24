@@ -97,7 +97,7 @@ function AccountDashboard() {
       {/* ── Header ── */}
       <header className="bg-navy-800 border-b border-navy-700 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <IRBWizLogo size={32} variant="full" theme="dark" />
+          <Link href="/"><IRBWizLogo size={32} variant="full" theme="dark" /></Link>
         </div>
         <div className="flex items-center gap-3">
           {isAdmin && (

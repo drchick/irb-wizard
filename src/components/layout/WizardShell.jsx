@@ -66,7 +66,7 @@ export function WizardShell() {
       <header className="bg-navy-800 text-white shadow-md no-print">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <IRBWizLogo size={36} variant="full" theme="dark" />
+            <Link href="/"><IRBWizLogo size={36} variant="full" theme="dark" /></Link>
           </div>
           <div className="flex items-center gap-3">
             {errors > 0 && (

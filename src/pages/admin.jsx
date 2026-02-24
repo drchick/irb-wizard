@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import Link          from 'next/link';
 import { useAuth }     from '../context/AuthContext';
 import { supabase }    from '../supabase';
 import IRBWizLogo      from '../components/layout/IRBWizLogo';
@@ -383,7 +384,7 @@ function AdminDashboard() {
       {/* ── Top header ── */}
       <header className="bg-navy-800 border-b border-navy-700 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <IRBWizLogo size={32} variant="full" theme="dark" />
+          <Link href="/"><IRBWizLogo size={32} variant="full" theme="dark" /></Link>
           <span className="text-xs bg-gold-500 text-navy-900 font-bold px-2 py-0.5 rounded uppercase tracking-wide">
             Admin
           </span>
