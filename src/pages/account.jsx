@@ -83,24 +83,54 @@ function AccountDashboard() {
   const [promoStatus, setPromoStatus] = useState('idle'); // idle | loading | success | error
   const [promoMsg, setPromoMsg] = useState('');
   const [buyingPack, setBuyingPack] = useState(null);
+  // paymentStatus: null | 'pending' | 'success' | 'delayed' | 'cancelled'
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [creditBaseline, setCreditBaseline] = useState(null);
 
   useEffect(() => { setProtocols(getSavedProtocols()); }, []);
 
-  // Detect Stripe return
+  // 1️⃣ Detect Stripe redirect — set 'pending', do NOT show success yet
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') === 'success') {
-      setPaymentStatus('success');
-      refetchCredits();
-      // Clean URL
+      setPaymentStatus('pending');
       window.history.replaceState({}, '', '/account');
     } else if (params.get('payment') === 'cancelled') {
       setPaymentStatus('cancelled');
       window.history.replaceState({}, '', '/account');
     }
-  }, [refetchCredits]);
+  }, []); // runs once on mount
+
+  // 2️⃣ Capture credit baseline once credits load and payment is pending
+  useEffect(() => {
+    if (paymentStatus === 'pending' && credits !== null && creditBaseline === null) {
+      setCreditBaseline(credits);
+    }
+  }, [paymentStatus, credits, creditBaseline]);
+
+  // 3️⃣ Poll for webhook-fulfilled credits while pending
+  useEffect(() => {
+    if (paymentStatus !== 'pending' || creditBaseline === null) return;
+    let attempt = 0;
+    const MAX = 9; // poll up to ~18 seconds
+    const timer = setInterval(async () => {
+      attempt++;
+      await refetchCredits();
+      if (attempt >= MAX) {
+        clearInterval(timer);
+        setPaymentStatus(prev => prev === 'pending' ? 'delayed' : prev);
+      }
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [paymentStatus, creditBaseline, refetchCredits]);
+
+  // 4️⃣ Detect when credits actually increased (webhook fired)
+  useEffect(() => {
+    if (paymentStatus === 'pending' && creditBaseline !== null && credits !== null && credits > creditBaseline) {
+      setPaymentStatus('success');
+    }
+  }, [paymentStatus, creditBaseline, credits]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -258,14 +288,42 @@ function AccountDashboard() {
 
           <div className="p-6 space-y-6">
             {/* Payment status toasts */}
+            {paymentStatus === 'pending' && (
+              <div className="flex items-start gap-3 bg-amber-900/30 border border-amber-700 rounded-lg px-4 py-3 text-amber-200 text-sm">
+                <span className="mt-0.5 w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                <div>
+                  <p className="font-semibold">Payment confirmed — applying credits…</p>
+                  <p className="text-xs text-amber-300/80 mt-0.5">Your balance will update automatically in a few seconds.</p>
+                </div>
+              </div>
+            )}
             {paymentStatus === 'success' && (
               <div className="flex items-center gap-2 bg-emerald-900/30 border border-emerald-700 rounded-lg px-4 py-3 text-emerald-300 text-sm">
-                <CheckCircle size={16} /> Credits added successfully! Your balance has been updated.
+                <CheckCircle size={16} className="shrink-0" />
+                <div>
+                  <p className="font-semibold">Credits added! Your new balance is shown above.</p>
+                </div>
+              </div>
+            )}
+            {paymentStatus === 'delayed' && (
+              <div className="flex items-start gap-3 bg-amber-900/30 border border-amber-700/60 rounded-lg px-4 py-3 text-amber-200 text-sm">
+                <AlertCircle size={16} className="shrink-0 mt-0.5 text-amber-400" />
+                <div>
+                  <p className="font-semibold">Payment confirmed — credits are taking a moment to appear.</p>
+                  <p className="text-xs text-amber-300/80 mt-0.5">
+                    Try refreshing this page. If credits still don&apos;t appear, contact{' '}
+                    <a href="mailto:support@symbioticscholar.com" className="underline">support@symbioticscholar.com</a>.
+                  </p>
+                  <button onClick={() => { refetchCredits(); setPaymentStatus('pending'); setCreditBaseline(null); }}
+                    className="mt-2 text-xs bg-amber-700/50 hover:bg-amber-700 text-white px-3 py-1 rounded-md transition-colors">
+                    Retry
+                  </button>
+                </div>
               </div>
             )}
             {paymentStatus === 'cancelled' && (
               <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-400 text-sm">
-                <XCircle size={16} /> Checkout cancelled — no charge was made.
+                <XCircle size={16} className="shrink-0" /> Checkout cancelled — no charge was made.
               </div>
             )}
 
