@@ -14,6 +14,7 @@ import {
   LayoutDashboard, Users, Activity, ShoppingBag,
   RefreshCw, LogOut, TrendingUp, Zap, AlertCircle,
   Code2, Mail, MailOpen, Circle,
+  Tag, Plus, Trash2,
 } from 'lucide-react';
 
 // ── Shared fetch helper (sends Supabase session token) ─────────────────────────
@@ -32,11 +33,12 @@ async function adminFetch(path) {
 
 // ── Tabs config ────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'overview',  label: 'Overview',   Icon: LayoutDashboard },
-  { id: 'users',     label: 'Users',      Icon: Users           },
-  { id: 'usage',     label: 'Usage',      Icon: Activity        },
-  { id: 'purchases', label: 'Purchases',  Icon: ShoppingBag     },
-  { id: 'messages',  label: 'Messages',   Icon: Mail            },
+  { id: 'overview',  label: 'Overview',    Icon: LayoutDashboard },
+  { id: 'users',     label: 'Users',       Icon: Users           },
+  { id: 'usage',     label: 'Usage',       Icon: Activity        },
+  { id: 'purchases', label: 'Purchases',   Icon: ShoppingBag     },
+  { id: 'messages',  label: 'Messages',    Icon: Mail            },
+  { id: 'promo',     label: 'Promo Codes', Icon: Tag             },
 ];
 
 // ── Shared UI ──────────────────────────────────────────────────────────────────
@@ -350,20 +352,73 @@ function UsageTab() {
 
 // ── Tab: Purchases ─────────────────────────────────────────────────────────────
 function PurchasesTab() {
+  const [purchases, setPurchases] = useState([]);
+  const [loading, setLoad] = useState(true);
+  const [error, setError] = useState('');
+  const [note, setNote] = useState('');
+
+  const load = useCallback(async () => {
+    setLoad(true); setError(''); setNote('');
+    try {
+      const data = await adminFetch('/api/admin/purchases');
+      setPurchases(data.purchases ?? []);
+      if (data.note) setNote(data.note);
+    } catch (e) { setError(e.message); }
+    finally { setLoad(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const totalRevenue = purchases.reduce((s, p) => s + (p.amount_cents ?? 0), 0);
+
+  function fmtMoney(cents) { return `$${(cents / 100).toFixed(2)}`; }
+
   return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <ShoppingBag size={52} className="text-slate-700" />
-      <h2 className="text-xl font-semibold text-white">Purchases</h2>
-      <p className="text-sm text-slate-400 text-center max-w-sm leading-relaxed">
-        Purchase tracking will be available once Stripe is integrated.
-        All transactions will appear here with user, plan, amount, and date.
-      </p>
-      <a
-        href="mailto:hello@irbwiz.help"
-        className="mt-2 text-sm text-gold-400 hover:text-gold-300 underline"
-      >
-        Contact for enterprise / department pricing
-      </a>
+    <div className="space-y-4">
+      <SectionHeader
+        title="Purchases"
+        sub={purchases.length ? `${purchases.length} transactions · ${fmtMoney(totalRevenue)} total revenue` : undefined}
+        onRefresh={load}
+      />
+      {note && <div className="text-slate-500 text-xs bg-navy-800 border border-navy-700 rounded-lg px-3 py-2">{note}</div>}
+      {loading ? <Spinner /> : error ? <ErrorMsg msg={error} /> : (
+        purchases.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500">
+            <ShoppingBag size={40} className="text-slate-700" />
+            <p className="text-sm">No purchases yet.</p>
+            <p className="text-xs text-slate-600">Transactions will appear here once Stripe is configured and a purchase is made.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-navy-700">
+            <table className="w-full text-sm">
+              <thead className="bg-navy-800 text-slate-400 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="text-left px-4 py-3">User</th>
+                  <th className="text-left px-4 py-3">Plan</th>
+                  <th className="text-left px-4 py-3">Credits</th>
+                  <th className="text-left px-4 py-3">Amount</th>
+                  <th className="text-left px-4 py-3">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-navy-700">
+                {purchases.map((p, i) => (
+                  <tr key={p.id ?? i} className="hover:bg-navy-800/50 transition-colors">
+                    <td className="px-4 py-3 text-slate-200">{p.user_email ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-400">{p.plan ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      <span className="bg-gold-500/20 text-gold-400 px-2 py-0.5 rounded text-xs font-medium">
+                        {p.credits} credit{p.credits !== 1 ? 's' : ''}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-emerald-400 font-medium">{fmtMoney(p.amount_cents ?? 0)}</td>
+                    <td className="px-4 py-3 text-slate-400">{fmtDate(p.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
     </div>
   );
 }
@@ -536,6 +591,208 @@ function MessagesTab() {
   );
 }
 
+// ── Tab: Promo Codes ───────────────────────────────────────────────────────────
+const PROMO_SQL = `CREATE TABLE promo_codes (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code       TEXT UNIQUE NOT NULL,
+  credits    INTEGER NOT NULL,
+  max_uses   INTEGER,
+  uses       INTEGER DEFAULT 0,
+  expires_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE promo_redemptions (
+  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id    UUID REFERENCES auth.users(id),
+  code       TEXT NOT NULL,
+  credits    INTEGER NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, code)
+);
+ALTER TABLE promo_redemptions ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE purchases (
+  id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  stripe_session_id TEXT UNIQUE,
+  user_id           UUID REFERENCES auth.users(id),
+  user_email        TEXT,
+  plan              TEXT,
+  credits           INTEGER,
+  amount_cents      INTEGER,
+  status            TEXT DEFAULT 'pending',
+  created_at        TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE purchases ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE user_credits (
+  user_id    UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  credits    INTEGER NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE user_credits ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users read own credits" ON user_credits FOR SELECT USING (auth.uid() = user_id);`;
+
+function PromoSqlNote() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-navy-800 border border-navy-600 rounded-xl p-4 text-sm">
+      <button onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors">
+        <Code2 size={14} />
+        <span className="font-medium">Set up credits + purchases + promo tables</span>
+        <span className="text-slate-500 ml-1">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div className="mt-3 space-y-2">
+          <p className="text-slate-400 text-xs">Run this SQL in Supabase → SQL Editor:</p>
+          <pre className="bg-navy-900 rounded-lg p-3 text-xs text-emerald-300 overflow-x-auto whitespace-pre-wrap">{PROMO_SQL}</pre>
+          <p className="text-slate-500 text-xs">Also add <code className="bg-navy-900 px-1 rounded">STRIPE_SECRET_KEY</code>, <code className="bg-navy-900 px-1 rounded">STRIPE_WEBHOOK_SECRET</code>, and <code className="bg-navy-900 px-1 rounded">NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> to Vercel env vars.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PromoCodesTab() {
+  const [codes, setCodes]     = useState([]);
+  const [loading, setLoad]   = useState(true);
+  const [error, setError]    = useState('');
+  const [note, setNote]      = useState('');
+  const [form, setForm]      = useState({ code: '', credits: '1', max_uses: '', expires_at: '' });
+  const [creating, setCreating] = useState(false);
+  const [createErr, setCreateErr] = useState('');
+
+  const load = useCallback(async () => {
+    setLoad(true); setError(''); setNote('');
+    try {
+      const data = await adminFetch('/api/admin/promo-codes');
+      setCodes(data.codes ?? []);
+      if (data.note) setNote(data.note);
+    } catch (e) { setError(e.message); }
+    finally { setLoad(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setCreating(true); setCreateErr('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? '';
+      const res = await fetch('/api/admin/promo-codes', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setForm({ code: '', credits: '1', max_uses: '', expires_at: '' });
+      await load();
+    } catch (err) { setCreateErr(err.message); }
+    finally { setCreating(false); }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this promo code?')) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token ?? '';
+    await fetch(`/api/admin/promo-codes?id=${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    await load();
+  };
+
+  const inputCls = 'bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-gold-400';
+
+  return (
+    <div className="space-y-5">
+      <SectionHeader title="Promo Codes" sub="Create codes users can redeem for free credits" onRefresh={load} />
+
+      <PromoSqlNote />
+      {note && <div className="text-slate-500 text-xs bg-navy-800 border border-navy-700 rounded-lg px-3 py-2">{note}</div>}
+
+      {/* Create form */}
+      <div className="bg-navy-800 rounded-xl border border-navy-700 p-5">
+        <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2"><Plus size={14} className="text-gold-400" /> Create New Code</h3>
+        <form onSubmit={handleCreate} className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="col-span-2 md:col-span-1">
+            <label className="block text-xs text-slate-400 mb-1">Code *</label>
+            <input required value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+              placeholder="BETA2025" className={`${inputCls} w-full uppercase tracking-wider`} />
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Credits *</label>
+            <input required type="number" min="1" value={form.credits} onChange={e => setForm(f => ({ ...f, credits: e.target.value }))}
+              className={`${inputCls} w-full`} />
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Max Uses</label>
+            <input type="number" min="1" value={form.max_uses} onChange={e => setForm(f => ({ ...f, max_uses: e.target.value }))}
+              placeholder="unlimited" className={`${inputCls} w-full`} />
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Expires</label>
+            <input type="date" value={form.expires_at} onChange={e => setForm(f => ({ ...f, expires_at: e.target.value }))}
+              className={`${inputCls} w-full`} />
+          </div>
+          <div className="col-span-2 md:col-span-4 flex items-center gap-3">
+            <button type="submit" disabled={creating}
+              className="flex items-center gap-2 bg-gold-500 hover:bg-gold-400 disabled:opacity-60 text-navy-900 font-bold px-5 py-2 rounded-lg text-sm transition-colors">
+              <Plus size={14} /> {creating ? 'Creating…' : 'Create Code'}
+            </button>
+            {createErr && <p className="text-red-400 text-sm">{createErr}</p>}
+          </div>
+        </form>
+      </div>
+
+      {/* Codes list */}
+      {loading ? <Spinner /> : error ? <ErrorMsg msg={error} /> : (
+        codes.length === 0 ? (
+          <div className="flex flex-col items-center py-10 text-slate-500 gap-2">
+            <Tag size={32} className="text-slate-700" />
+            <p className="text-sm">No promo codes yet.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-navy-700">
+            <table className="w-full text-sm">
+              <thead className="bg-navy-800 text-slate-400 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="text-left px-4 py-3">Code</th>
+                  <th className="text-left px-4 py-3">Credits</th>
+                  <th className="text-left px-4 py-3">Uses</th>
+                  <th className="text-left px-4 py-3">Expires</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-navy-700">
+                {codes.map((c) => (
+                  <tr key={c.id} className="hover:bg-navy-800/50 transition-colors">
+                    <td className="px-4 py-3 font-mono text-gold-400 font-bold tracking-wider">{c.code}</td>
+                    <td className="px-4 py-3 text-white font-medium">{c.credits}</td>
+                    <td className="px-4 py-3 text-slate-400">
+                      {c.uses ?? 0}{c.max_uses ? ` / ${c.max_uses}` : ' / ∞'}
+                    </td>
+                    <td className="px-4 py-3 text-slate-400">{c.expires_at ? fmtDate(c.expires_at) : '—'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button onClick={() => handleDelete(c.id)} className="text-slate-600 hover:text-red-400 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
 // ── Root Admin component ───────────────────────────────────────────────────────
 function AdminDashboard() {
   const { signOut }     = useAuth();
@@ -587,11 +844,12 @@ function AdminDashboard() {
 
       {/* ── Tab content ── */}
       <main className="max-w-6xl mx-auto px-6 py-8">
-        {tab === 'overview'  && <OverviewTab  />}
-        {tab === 'users'     && <UsersTab     />}
-        {tab === 'usage'     && <UsageTab     />}
-        {tab === 'purchases' && <PurchasesTab />}
-        {tab === 'messages'  && <MessagesTab  />}
+        {tab === 'overview'  && <OverviewTab    />}
+        {tab === 'users'     && <UsersTab       />}
+        {tab === 'usage'     && <UsageTab       />}
+        {tab === 'purchases' && <PurchasesTab   />}
+        {tab === 'messages'  && <MessagesTab    />}
+        {tab === 'promo'     && <PromoCodesTab  />}
       </main>
     </div>
   );

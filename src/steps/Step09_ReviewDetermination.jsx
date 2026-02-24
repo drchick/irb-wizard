@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { useAIReview } from '../hooks/useAIReview';
 import { AIReviewPanel } from '../components/ui/AIReviewPanel';
 import { ReviewBadge } from '../components/layout/ReviewBadge';
+import { useCredits } from '../hooks/useCredits';
+import { CreditGate } from '../components/ui/CreditGate';
 
 const REVIEW_CONFIG = {
   [REVIEW_TYPES.EXEMPT]: {
@@ -136,6 +138,22 @@ export default function Step09_ReviewDetermination() {
   const warnings = consistencyIssues.filter(i => i.severity === 'warning');
 
   const { analyze: runAI, loading: aiLoading, result: aiResult, error: aiError, clear: clearAI } = useAIReview();
+  const { credits, loading: creditsLoading, deduct: deductCredit } = useCredits();
+
+  // Run AI and deduct 1 credit
+  const handleRunAI = async () => {
+    if (aiResult) { runAI('comprehensive', formData, { rulesBased: reviewResult }); return; }
+    try {
+      await deductCredit();
+      // Set unlock flag so Step 10 documents are also unlocked
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('irbwiz_protocol_unlocked', 'true');
+      }
+      runAI('comprehensive', formData, { rulesBased: reviewResult });
+    } catch (err) {
+      // Insufficient credits — CreditGate UI handles this
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -297,76 +315,82 @@ export default function Step09_ReviewDetermination() {
       </InfoBox>
 
       {/* ── Full AI Protocol Assessment ──────────────────────────────────── */}
-      <div className="border-2 border-dashed border-navy-200 rounded-xl p-5 bg-navy-50">
-        <div className="flex items-start gap-3 mb-4">
-          <Sparkles size={20} className="text-navy-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-bold text-navy-800">Full AI Protocol Assessment</p>
-            <p className="text-xs text-navy-600 mt-0.5">
-              Claude reviews all your narratives holistically — acting as an IRB pre-reviewer.
-              Results are advisory only and do not replace official IRB review.
-            </p>
-          </div>
-        </div>
-
-        {!aiResult && !aiLoading && !aiError && (
-          <button
-            className="btn-primary"
-            onClick={() => runAI('comprehensive', formData, { rulesBased: reviewResult })}
-          >
-            <Sparkles size={14} />
-            Run Full AI Assessment
-          </button>
-        )}
-
-        {(aiLoading || aiResult || aiError) && (
-          <AIReviewPanel
-            result={aiResult}
-            loading={aiLoading}
-            error={aiError}
-            onClear={clearAI}
-          />
-        )}
-
-        {/* Re-run button */}
-        {(aiResult || aiError) && !aiLoading && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-navy-200">
-            <button onClick={clearAI} className="btn-secondary text-xs px-3 py-1.5">Clear</button>
-            <button
-              onClick={() => runAI('comprehensive', formData, { rulesBased: reviewResult })}
-              className="btn-primary text-xs px-3 py-1.5"
-            >
-              <Sparkles size={12} />
-              Re-run Assessment
-            </button>
-          </div>
-        )}
-
-        {/* AI vs. rules-based comparison */}
-        {aiResult && (
-          <div className="mt-4 pt-4 border-t border-navy-200">
-            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
-              AI vs. Rules-Based Comparison
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-slate-200 bg-white p-3">
-                <p className="text-xs text-slate-500 font-semibold mb-2">Rules-Based Engine</p>
-                <ReviewBadge type={type} compact />
-                <p className="text-xs text-slate-400 mt-1.5">
-                  {Math.round((confidence || 0) * 100)}% confidence
-                </p>
-              </div>
-              <div className="rounded-lg border border-navy-200 bg-white p-3">
-                <p className="text-xs text-navy-600 font-semibold mb-2">AI Assessment</p>
-                <ReviewBadge type={aiResult.reviewSuggestion} compact />
-                <p className="text-xs text-slate-400 mt-1.5">
-                  {Math.round((aiResult.confidence || 0) * 100)}% confidence
-                </p>
-              </div>
+      <CreditGate
+        credits={credits}
+        loading={creditsLoading}
+        feature="Run a full AI protocol assessment powered by Claude — acts as an IRB pre-reviewer across all your narratives."
+      >
+        <div className="border-2 border-dashed border-navy-200 rounded-xl p-5 bg-navy-50">
+          <div className="flex items-start gap-3 mb-4">
+            <Sparkles size={20} className="text-navy-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-navy-800">Full AI Protocol Assessment</p>
+              <p className="text-xs text-navy-600 mt-0.5">
+                Claude reviews all your narratives holistically — acting as an IRB pre-reviewer.
+                Results are advisory only and do not replace official IRB review.
+              </p>
             </div>
           </div>
-        )}
-      </div>
+
+          {!aiResult && !aiLoading && !aiError && (
+            <button
+              className="btn-primary"
+              onClick={handleRunAI}
+            >
+              <Sparkles size={14} />
+              Run Full AI Assessment
+            </button>
+          )}
+
+          {(aiLoading || aiResult || aiError) && (
+            <AIReviewPanel
+              result={aiResult}
+              loading={aiLoading}
+              error={aiError}
+              onClear={clearAI}
+            />
+          )}
+
+          {/* Re-run button */}
+          {(aiResult || aiError) && !aiLoading && (
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-navy-200">
+              <button onClick={clearAI} className="btn-secondary text-xs px-3 py-1.5">Clear</button>
+              <button
+                onClick={() => runAI('comprehensive', formData, { rulesBased: reviewResult })}
+                className="btn-primary text-xs px-3 py-1.5"
+              >
+                <Sparkles size={12} />
+                Re-run Assessment
+              </button>
+            </div>
+          )}
+
+          {/* AI vs. rules-based comparison */}
+          {aiResult && (
+            <div className="mt-4 pt-4 border-t border-navy-200">
+              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                AI vs. Rules-Based Comparison
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <p className="text-xs text-slate-500 font-semibold mb-2">Rules-Based Engine</p>
+                  <ReviewBadge type={type} compact />
+                  <p className="text-xs text-slate-400 mt-1.5">
+                    {Math.round((confidence || 0) * 100)}% confidence
+                  </p>
+                </div>
+                <div className="rounded-lg border border-navy-200 bg-white p-3">
+                  <p className="text-xs text-navy-600 font-semibold mb-2">AI Assessment</p>
+                  <ReviewBadge type={aiResult.reviewSuggestion} compact />
+                  <p className="text-xs text-slate-400 mt-1.5">
+                    {Math.round((aiResult.confidence || 0) * 100)}% confidence
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </CreditGate>
     </div>
   );
 }

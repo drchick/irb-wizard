@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useWizard } from '../context/WizardContext';
+import { useCredits } from '../hooks/useCredits';
+import { CreditGate } from '../components/ui/CreditGate';
 import { REVIEW_TYPES } from '../utils/reviewClassifier';
 
 // Plain-text generators
@@ -216,6 +218,29 @@ function buildChecklist(formData, reviewType) {
 export default function Step10_DocumentGenerator() {
   const { formData, reviewResult } = useWizard();
   const { type } = reviewResult;
+  const { credits, loading: creditsLoading, deduct: deductCredit } = useCredits();
+
+  // If the user already ran the AI review in Step 9 (and set the unlock flag),
+  // treat documents as unlocked without spending another credit.
+  const [docUnlocked, setDocUnlocked] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDocUnlocked(localStorage.getItem('irbwiz_protocol_unlocked') === 'true');
+    }
+  }, []);
+
+  // Effective credits: unlocked via AI run OR has remaining credits
+  const effectiveCredits = docUnlocked ? 1 : credits;
+
+  const handleUnlockDocs = async () => {
+    try {
+      await deductCredit();
+      localStorage.setItem('irbwiz_protocol_unlocked', 'true');
+      setDocUnlocked(true);
+    } catch {
+      // handled by CreditGate
+    }
+  };
 
   // Text content state
   const [docs, setDocs] = useState({
@@ -286,6 +311,13 @@ export default function Step10_DocumentGenerator() {
         language to accurately reflect your study. Have your Faculty Advisor review all
         documents before submission.
       </InfoBox>
+
+      {/* ── Document sections gated behind 1 credit ──────────────────────── */}
+      <CreditGate
+        credits={effectiveCredits}
+        loading={creditsLoading}
+        feature="Generate and download your complete IRB document package — Protocol Description, Consent Forms, Recruitment Materials, and more."
+      >
 
       {/* ── A. Protocol Documents ──────────────────────────────────────────── */}
       <DocSection
@@ -508,6 +540,8 @@ export default function Step10_DocumentGenerator() {
           <li>UB Research Compliance: Check myUB portal for IRB Chair and Administrator contacts</li>
         </ul>
       </InfoBox>
+
+      </CreditGate>
     </div>
   );
 }

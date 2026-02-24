@@ -1,6 +1,6 @@
 /**
  * account.jsx — User dashboard
- * Shows: profile info, AI credits used, past protocols (from localStorage)
+ * Shows: profile info, AI credits (buy/redeem), past protocols (from localStorage)
  */
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -8,9 +8,12 @@ import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import IRBWizLogo from '../components/layout/IRBWizLogo';
+import { useCredits } from '../hooks/useCredits';
+import { supabase } from '../supabase';
 import {
   UserCircle, Mail, Shield, LogOut, ArrowLeft,
   FileText, Zap, Clock, ChevronRight, Trash2, AlertCircle,
+  CreditCard, Tag, CheckCircle, XCircle, Loader,
 } from 'lucide-react';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -74,7 +77,30 @@ function AccountDashboard() {
   const [protocols, setProtocols] = useState([]);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
+  // Credits state
+  const { credits, loading: creditsLoading, refetch: refetchCredits } = useCredits();
+  const [promoCode, setPromoCode] = useState('');
+  const [promoStatus, setPromoStatus] = useState('idle'); // idle | loading | success | error
+  const [promoMsg, setPromoMsg] = useState('');
+  const [buyingPack, setBuyingPack] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null);
+
   useEffect(() => { setProtocols(getSavedProtocols()); }, []);
+
+  // Detect Stripe return
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      setPaymentStatus('success');
+      refetchCredits();
+      // Clean URL
+      window.history.replaceState({}, '', '/account');
+    } else if (params.get('payment') === 'cancelled') {
+      setPaymentStatus('cancelled');
+      window.history.replaceState({}, '', '/account');
+    }
+  }, [refetchCredits]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -85,6 +111,51 @@ function AccountDashboard() {
     deleteProtocol(id);
     setProtocols(getSavedProtocols());
     setDeleteConfirm(null);
+  };
+
+  const handleBuyCredits = async (pack) => {
+    setBuyingPack(pack);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? '';
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pack }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else throw new Error(data.error ?? 'Could not start checkout');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setBuyingPack(null);
+    }
+  };
+
+  const handleRedeemCode = async (e) => {
+    e.preventDefault();
+    if (!promoCode.trim()) return;
+    setPromoStatus('loading');
+    setPromoMsg('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? '';
+      const res = await fetch('/api/credits/redeem', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setPromoStatus('success');
+      setPromoMsg(`${data.added} credit${data.added > 1 ? 's' : ''} added! New balance: ${data.credits}`);
+      setPromoCode('');
+      refetchCredits();
+    } catch (err) {
+      setPromoStatus('error');
+      setPromoMsg(err.message);
+    }
   };
 
   const provider = user?.app_metadata?.provider ?? 'email';
@@ -168,30 +239,112 @@ function AccountDashboard() {
           </div>
         </section>
 
-        {/* ── Credits / usage ── */}
-        <section className="bg-navy-800 rounded-2xl border border-navy-700 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Zap size={16} className="text-gold-400" />
-            <h2 className="text-base font-bold text-white">AI Credits</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div className="bg-navy-900 rounded-xl p-4 border border-navy-700">
-              <p className="text-2xl font-bold text-white">∞</p>
-              <p className="text-xs text-slate-400 mt-0.5">Available Credits</p>
+        {/* ── AI Credits ── */}
+        <div id="credits" className="bg-navy-800 rounded-2xl border border-navy-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-navy-700 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Zap size={18} className="text-gold-400" />
+              <h2 className="text-white font-semibold">AI Credits</h2>
             </div>
-            <div className="bg-navy-900 rounded-xl p-4 border border-navy-700">
-              <p className="text-2xl font-bold text-gold-400">Free</p>
-              <p className="text-xs text-slate-400 mt-0.5">Current Plan</p>
-            </div>
-            <div className="bg-navy-900 rounded-xl p-4 border border-navy-700 sm:col-span-1 col-span-2">
-              <p className="text-2xl font-bold text-emerald-400">Beta</p>
-              <p className="text-xs text-slate-400 mt-0.5">Access Level</p>
+            <div className="flex items-center gap-2">
+              {creditsLoading ? (
+                <div className="w-5 h-5 rounded-full border-2 border-gold-400 border-t-transparent animate-spin" />
+              ) : (
+                <span className="text-2xl font-bold text-gold-400">{credits ?? 0}</span>
+              )}
+              <span className="text-slate-400 text-sm">credit{credits !== 1 ? 's' : ''}</span>
             </div>
           </div>
-          <p className="text-xs text-slate-500 mt-4">
-            During beta, all AI review features are free. Paid plans with usage credits will be introduced after beta.
-          </p>
-        </section>
+
+          <div className="p-6 space-y-6">
+            {/* Payment status toasts */}
+            {paymentStatus === 'success' && (
+              <div className="flex items-center gap-2 bg-emerald-900/30 border border-emerald-700 rounded-lg px-4 py-3 text-emerald-300 text-sm">
+                <CheckCircle size={16} /> Credits added successfully! Your balance has been updated.
+              </div>
+            )}
+            {paymentStatus === 'cancelled' && (
+              <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-400 text-sm">
+                <XCircle size={16} /> Checkout cancelled — no charge was made.
+              </div>
+            )}
+
+            {/* Credit packs */}
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Buy Credits</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { pack: '1',  credits: 1,  price: '$9',  per: '$9.00/credit',  label: 'Starter' },
+                  { pack: '3',  credits: 3,  price: '$20', per: '$6.67/credit',  label: 'Standard', popular: true },
+                  { pack: '10', credits: 10, price: '$50', per: '$5.00/credit',  label: 'Pro' },
+                ].map(({ pack, credits: c, price, per, label, popular }) => (
+                  <div key={pack} className={`relative rounded-xl border p-4 text-center ${popular ? 'border-gold-500 bg-gold-500/5' : 'border-navy-600 bg-navy-900/50'}`}>
+                    {popular && (
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gold-500 text-navy-900 text-xs font-bold px-2 py-0.5 rounded-full">
+                        Best Value
+                      </span>
+                    )}
+                    <p className="text-xs text-slate-400 mb-1">{label}</p>
+                    <p className="text-2xl font-bold text-white">{price}</p>
+                    <p className="text-sm text-gold-400 font-medium">{c} credit{c > 1 ? 's' : ''}</p>
+                    <p className="text-xs text-slate-500 mb-3">{per}</p>
+                    <button
+                      onClick={() => handleBuyCredits(pack)}
+                      disabled={buyingPack !== null}
+                      className={`w-full py-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-60 ${
+                        popular
+                          ? 'bg-gold-500 hover:bg-gold-400 text-navy-900'
+                          : 'bg-navy-700 hover:bg-navy-600 text-white'
+                      }`}
+                    >
+                      {buyingPack === pack ? (
+                        <span className="flex items-center justify-center gap-1.5">
+                          <Loader size={14} className="animate-spin" /> Processing…
+                        </span>
+                      ) : (
+                        `Buy ${c} Credit${c > 1 ? 's' : ''}`
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-600 mt-2 text-center">Credits never expire · Secure checkout via Stripe</p>
+            </div>
+
+            {/* Promo / beta code */}
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <Tag size={12} /> Redeem a Code
+              </p>
+              <form onSubmit={handleRedeemCode} className="flex gap-2">
+                <input
+                  type="text"
+                  value={promoCode}
+                  onChange={e => setPromoCode(e.target.value.toUpperCase())}
+                  placeholder="BETA2025 or promo code"
+                  className="flex-1 bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-gold-400"
+                />
+                <button
+                  type="submit"
+                  disabled={promoStatus === 'loading' || !promoCode.trim()}
+                  className="px-4 py-2 bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-navy-900 font-bold rounded-lg text-sm transition-colors"
+                >
+                  {promoStatus === 'loading' ? <Loader size={14} className="animate-spin" /> : 'Redeem'}
+                </button>
+              </form>
+              {promoStatus === 'success' && (
+                <p className="mt-2 text-sm text-emerald-400 flex items-center gap-1.5">
+                  <CheckCircle size={14} /> {promoMsg}
+                </p>
+              )}
+              {promoStatus === 'error' && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-1.5">
+                  <XCircle size={14} /> {promoMsg}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* ── Past protocols ── */}
         <section className="bg-navy-800 rounded-2xl border border-navy-700 p-6">

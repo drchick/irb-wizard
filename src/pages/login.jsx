@@ -80,12 +80,12 @@ export default function Login() {
     if (password.length < 8)  { setError('Password must be at least 8 characters.'); return; }
     setBusy(true);
     try {
-      const { needsConfirmation } = await signUpWithEmail(email, password);
-      // Fire welcome email + admin notification (fire-and-forget, don't block UX)
+      const { needsConfirmation, user: newUser } = await signUpWithEmail(email, password);
+      // Fire welcome email + admin notification + beta credit (fire-and-forget)
       fetch('/api/notify-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, userId: newUser?.id }),
       }).catch(() => {});
       if (needsConfirmation) { setMode('confirm'); }
       else { router.replace('/wizard'); }
