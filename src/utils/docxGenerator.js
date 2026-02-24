@@ -61,6 +61,51 @@ function ubHeader(docTitle) {
   ];
 }
 
+// ─── IRBWiz letterhead (prepended above the UB header block) ──────────────────
+const NO_BORDER    = { style: BorderStyle.NONE, size: 0, color: 'auto' };
+const CELL_BORDERS = { top: NO_BORDER, bottom: NO_BORDER, left: NO_BORDER, right: NO_BORDER };
+
+function letterhead() {
+  return [
+    new Table({
+      width:   { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: NO_BORDER, left: NO_BORDER, right: NO_BORDER,
+        insideH: NO_BORDER, insideV: NO_BORDER,
+        bottom: { style: BorderStyle.SINGLE, size: 4, color: 'CBD5E1' },
+      },
+      rows: [new TableRow({ children: [
+        // Left — "IRBWiz" wordmark + sub-brand
+        new TableCell({
+          width: { size: 65, type: WidthType.PERCENTAGE }, borders: CELL_BORDERS,
+          children: [
+            new Paragraph({ spacing: { before: 60, after: 20 }, children: [
+              new TextRun({ text: 'IRB', bold: true, size: 30, color: NAVY, font: 'Georgia' }),
+              new TextRun({ text: 'Wiz', bold: true, size: 30, color: GOLD, font: 'Georgia' }),
+            ]}),
+            new Paragraph({ spacing: { before: 0, after: 80 }, children: [
+              new TextRun({ text: 'Symbiotic Scholar Suite', size: 14, color: GRAY, font: FONT, allCaps: true }),
+            ]}),
+          ],
+        }),
+        // Right — "Generated with IRBWiz" + URL
+        new TableCell({
+          width: { size: 35, type: WidthType.PERCENTAGE }, borders: CELL_BORDERS,
+          children: [
+            new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 60, after: 20 }, children: [
+              new TextRun({ text: 'Generated with IRBWiz', size: 16, color: GRAY, font: FONT, italics: true }),
+            ]}),
+            new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 0, after: 80 }, children: [
+              new TextRun({ text: 'irbwiz.help', size: 16, color: GOLD, font: FONT }),
+            ]}),
+          ],
+        }),
+      ]})],
+    }),
+    empty(),
+  ];
+}
+
 /** Bold section heading (Heading 2 style) */
 function sectionHeading(text) {
   return new Paragraph({
@@ -200,6 +245,7 @@ export async function generateProtocolDescriptionDocx(formData) {
   const piName = `${researcher.piFirstName || ''} ${researcher.piLastName || ''}`.trim() || '[PI Name]';
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Protocol Description'),
 
     sectionHeading('Section 1: Identification'),
@@ -328,6 +374,7 @@ export async function generateFullConsentFormDocx(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Consent to Participate in a Research Study'),
     infoBox('This is a template. Review all [BRACKETED] items and customize before submitting.'),
     empty(),
@@ -436,6 +483,7 @@ export async function generateExemptConsentSheetDocx(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Research Information Sheet'),
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -502,6 +550,7 @@ export async function generateParentalPermissionFormDocx(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Parental / Guardian Permission Form'),
     infoBox('This form requests your permission for your child to participate. Read carefully before signing.'),
     empty(),
@@ -572,6 +621,7 @@ export async function generateChildAssentFormDocx(formData) {
   const ageRange = subjects.minorAgeRange || `${subjects.minAge || '7'}–17`;
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Child Assent Form'),
     infoBox(`This form is written for children ages ${ageRange}. An adult will explain this to you before you decide.`),
     empty(),
@@ -625,6 +675,7 @@ export async function generateDebriefingScriptDocx(formData) {
   const piName = `${researcher.piFirstName || ''} ${researcher.piLastName || ''}`.trim() || '[PI Name]';
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Debriefing Script'),
     infoBox('READ THIS SCRIPT ALOUD TO EACH PARTICIPANT IMMEDIATELY AFTER THEIR PARTICIPATION. Do not summarize — use the actual words provided.'),
     empty(),
@@ -687,6 +738,7 @@ export async function generateHIPAAAuthorizationDocx(formData) {
     : '[List specific PHI types: name, date of birth, medical record number, diagnosis codes, test results, etc.]';
 
   const children = [
+    ...letterhead(),
     ...ubHeader('HIPAA Research Authorization Form'),
     infoBox('Required under 45 CFR § 164.508. This form authorizes use of your Protected Health Information (PHI) for research. You have the right to refuse.'),
     empty(),
@@ -751,6 +803,7 @@ export async function generateRecruitmentEmailDocx(formData) {
   ].filter(Boolean).join('; ') || '[eligibility criteria]';
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Recruitment Email Template'),
     infoBox('Copy and paste into your email client. Fill all [BRACKETED] items before sending. Do not send until IRB approval is received.'),
     empty(),
@@ -811,6 +864,7 @@ export async function generateRecruitmentFlyerDocx(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
   const children = [
+    ...letterhead(),
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 0, after: 240 },
@@ -869,6 +923,7 @@ export async function generateClassAnnouncementDocx(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Class Announcement / Verbal Recruitment Script'),
     infoBox('Read this script aloud to the class. Estimated reading time: 45–60 seconds. Obtain instructor permission before making this announcement. Do not use this script until IRB approval is received.'),
     empty(),
@@ -935,6 +990,7 @@ export async function generateSocialMediaPostDocx(formData) {
   const shortPost = `📢 Research participants needed! Study: "${study.title || '[Title]'}". Who: ${eligibility}. Time: ~${duration}. ${compensation !== 'Voluntary' ? compensation + '. ' : ''}Contact: ${researcher.piEmail || '[email]'} [IRB approved]`.slice(0, 280);
 
   const children = [
+    ...letterhead(),
     ...ubHeader('Social Media Recruitment Post Templates'),
     infoBox('Use these templates for LinkedIn, Facebook, Twitter/X, Instagram, and other platforms. Do NOT post until IRB approval is received. Include IRB number in final post.'),
     empty(),

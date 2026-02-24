@@ -3,6 +3,13 @@
  * Generates IRB-ready consent forms and protocol descriptions from wizard form data.
  */
 
+// ─── Letterhead ────────────────────────────────────────────────────────────────
+const TXT_LETTERHEAD = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  IRBWiz  ·  Symbiotic Scholar Suite  ·  irbwiz.help
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+`;
+
 // ─── Protocol Description ─────────────────────────────────────────────────────
 export function generateProtocolDescription(formData) {
   const { researcher, study, subjects, procedures, risks, data, consent, prescreening } = formData;
@@ -11,7 +18,7 @@ export function generateProtocolDescription(formData) {
   const methodStr = (procedures.methodTypes || []).map(m => METHOD_LABELS[m] || m).join(', ') || '[methods]';
   const totalN = subjects.totalParticipants || '[N]';
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 INSTITUTIONAL REVIEW BOARD
 PROTOCOL DESCRIPTION
 
@@ -236,7 +243,7 @@ export function generateExemptConsentSheet(formData) {
   const totalN = subjects.totalParticipants || '[N]';
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 RESEARCH INFORMATION SHEET
 (Exempt Research — No Signature Required)
 
@@ -300,7 +307,7 @@ export function generateFullConsentForm(formData) {
   const totalN = subjects.totalParticipants || '[N]';
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 CONSENT TO BE PART OF A RESEARCH STUDY
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -604,7 +611,7 @@ export function generateParentalPermissionForm(formData) {
   const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 INSTITUTIONAL REVIEW BOARD
 PARENTAL / GUARDIAN PERMISSION FORM
 
@@ -676,7 +683,7 @@ export function generateChildAssentForm(formData) {
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
   const ageRange = subjects.minorAgeRange || `${subjects.minAge || '7'}–17`;
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 INSTITUTIONAL REVIEW BOARD
 CHILD ASSENT FORM
 
@@ -737,7 +744,7 @@ export function generateDebriefingScript(formData) {
   const { researcher, study, procedures } = formData;
   const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
 
-  return `UNIVERSITY OF BRIDGEPORT — IRB
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT — IRB
 DEBRIEFING SCRIPT
 (Read aloud to each participant IMMEDIATELY after participation)
 
@@ -797,7 +804,7 @@ export function generateHIPAAAuthorization(formData) {
     ? data.identifierTypes.join(', ')
     : '[List specific PHI: name, date of birth, medical record number, diagnosis codes, test results, etc.]';
 
-  return `UNIVERSITY OF BRIDGEPORT
+  return `${TXT_LETTERHEAD}UNIVERSITY OF BRIDGEPORT
 INSTITUTIONAL REVIEW BOARD
 HIPAA RESEARCH AUTHORIZATION FORM
 (45 CFR § 164.508)
@@ -865,7 +872,7 @@ export function generateRecruitmentEmail(formData) {
     subjects.inclusionCriteria ? subjects.inclusionCriteria.split('\n')[0].trim() : null,
   ].filter(Boolean).join('; ') || '[eligibility criteria]';
 
-  return `RECRUITMENT EMAIL TEMPLATE
+  return `${TXT_LETTERHEAD}RECRUITMENT EMAIL TEMPLATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [Do NOT send until IRB approval is received. Insert IRB # before sending.]
 
@@ -918,7 +925,7 @@ export function generateRecruitmentFlyer(formData) {
   const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
-  return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  return `${TXT_LETTERHEAD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
            RESEARCH PARTICIPANTS NEEDED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -964,7 +971,7 @@ export function generateClassAnnouncement(formData) {
   const piName = `${researcher.piFirstName} ${researcher.piLastName}`.trim() || '[PI Name]';
   const duration = `${procedures.participationDuration || '[N]'} ${procedures.participationDurationUnit || 'minutes'}`;
 
-  return `CLASS ANNOUNCEMENT / VERBAL RECRUITMENT SCRIPT
+  return `${TXT_LETTERHEAD}CLASS ANNOUNCEMENT / VERBAL RECRUITMENT SCRIPT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [Estimated reading time: 45–60 seconds]
 [Obtain instructor permission BEFORE making this announcement]
@@ -1019,7 +1026,7 @@ export function generateSocialMediaPost(formData) {
     : subjects.minAge ? `age ${subjects.minAge}+` : '[eligible group]';
   const shortPost = `📢 Research participants needed! Study: "${study.title || '[Title]'}". Who: ${eligibility}. Time: ~${duration}. ${subjects.compensationOffered ? (subjects.compensationDetails || '[compensation]') + '. ' : ''}Contact: ${researcher.piEmail || '[email]'} [UB IRB approved]`.slice(0, 280);
 
-  return `SOCIAL MEDIA RECRUITMENT POST TEMPLATES
+  return `${TXT_LETTERHEAD}SOCIAL MEDIA RECRUITMENT POST TEMPLATES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 [Do NOT post until IRB approval is received. Include IRB # in all posts.]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
