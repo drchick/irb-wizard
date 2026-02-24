@@ -133,17 +133,6 @@ function DisclaimerModal({ onClose }) {
               style={{ color: GOLD }}>hello@symbioticscholar.com</a>.
           </p>
 
-          <button
-            onClick={onClose}
-            style={{
-              marginTop: 16, width: '100%',
-              background: '#1e4f8a', border: '1px solid #2c64a5',
-              color: BRIGHT, fontSize: 13, fontWeight: 600,
-              borderRadius: 8, padding: '10px 0', cursor: 'pointer',
-            }}
-          >
-            I Understand — Close
-          </button>
         </div>
       </div>
     </div>
@@ -191,19 +180,6 @@ export default function Footer() {
             <FooterLink href="https://www.hhs.gov/ohrp/regulations-and-policy/regulations/45-cfr-46/index.html" external label="45 CFR 46" />
             <FooterLink href="https://www.hhs.gov/ohrp/regulations-and-policy/belmont-report/index.html" external label="Belmont Report" />
             <FooterLink href="https://about.citiprogram.org/" external label="CITI Training" />
-            {/* Disclaimer modal trigger */}
-            <button
-              onClick={() => setShowDisclaimer(true)}
-              style={{
-                display: 'block', background: 'none', border: 'none', padding: 0,
-                fontSize: 13, color: SOFT, cursor: 'pointer', marginBottom: 9,
-                textAlign: 'left',
-              }}
-              onMouseEnter={e => e.target.style.color = MUTED}
-              onMouseLeave={e => e.target.style.color = SOFT}
-            >
-              Legal Disclaimer
-            </button>
           </div>
 
           {/* Suite column */}
@@ -232,9 +208,21 @@ export default function Footer() {
           color: SOFT,
         }}>
           <span>© {year} IRBWiz by Symbiotic Scholar. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: 20 }}>
+          <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener noreferrer" style={{ color: SOFT, textDecoration: 'none' }}>Privacy Policy</a>
             <a href="https://irbwiz.help/terms" target="_blank" rel="noopener noreferrer" style={{ color: SOFT, textDecoration: 'none' }}>Terms of Service</a>
+            <button
+              onClick={() => setShowDisclaimer(true)}
+              style={{
+                background: 'none', border: 'none', padding: 0,
+                fontSize: 12, color: SOFT, cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={e => e.target.style.color = MUTED}
+              onMouseLeave={e => e.target.style.color = SOFT}
+            >
+              Legal Disclaimer
+            </button>
           </div>
         </div>
 

@@ -60,7 +60,7 @@
       background: #0a1628; color: #94a3b8; padding: 56px 24px 28px;
     }
     .footer-grid {
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
       gap: 48px; max-width: 1000px; margin: 0 auto 40px;
     }
     .footer-brand-desc { font-size: 13px; line-height: 1.75; margin-top: 14px; max-width: 280px; }
@@ -730,18 +730,10 @@
       </p>
     </div>
 
-    <!-- IRBWiz links -->
-    <div class="footer-col">
-      <h4>IRBWiz</h4>
-      <a href="/">Launch Wizard</a>
-      <a href="/irb-review-guide.html" class="highlight">IRB Review Guide</a>
-      <a href="/">Protocol Checklist</a>
-      <a href="/">AI Pre-Review</a>
-    </div>
-
     <!-- Resources -->
     <div class="footer-col">
       <h4>Resources</h4>
+      <a href="/irb-review-guide.html">IRB Review Guide</a>
       <a href="https://www.bridgeport.edu/research/irb/" target="_blank" rel="noopener">UB IRB Office</a>
       <a href="https://www.hhs.gov/ohrp/regulations-and-policy/regulations/45-cfr-46/index.html" target="_blank" rel="noopener">45 CFR 46</a>
       <a href="https://www.hhs.gov/ohrp/regulations-and-policy/belmont-report/index.html" target="_blank" rel="noopener">Belmont Report</a>
@@ -751,9 +743,9 @@
     <!-- Suite -->
     <div class="footer-col">
       <h4>Symbiotic Scholar</h4>
-      <a href="https://www.doctordissertation.com" target="_blank" rel="noopener">Dr. Dissertation</a>
-      <a href="https://peerreviewpro.com" target="_blank" rel="noopener">Peer-Review PRO</a>
-      <a href="/" class="highlight">IRBWiz</a>
+      <a href="https://www.doctordissertation.com" target="_blank" rel="noopener" style="color:#a78bfa;">Dr. Dissertation</a>
+      <a href="https://peerreviewpro.com" target="_blank" rel="noopener" style="color:#2dd4bf;">Peer-Review PRO</a>
+      <a href="https://irbwiz.help" class="highlight">IRBWiz</a>
     </div>
 
   </div>
@@ -762,18 +754,74 @@
   <div class="footer-bottom">
     <span>© <script>document.write(new Date().getFullYear())</script> IRBWiz by Symbiotic Scholar. All rights reserved.</span>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
+      <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+      <a href="https://irbwiz.help/terms" target="_blank" rel="noopener">Terms of Service</a>
+      <button onclick="openDisclaimer()" style="background:none;border:none;padding:0;color:#64748b;cursor:pointer;font-size:12px;font-family:inherit;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Legal Disclaimer</button>
     </div>
   </div>
 
   <!-- Symbiotic Scholar bar -->
   <div class="footer-symbiotic">
-    Part of the <a href="#">Symbiotic Scholar</a> family of AI-powered academic tools.
-    Also see: <a href="https://www.doctordissertation.com" target="_blank" rel="noopener">Dr. Dissertation</a>
-    · <a href="https://peerreviewpro.com" target="_blank" rel="noopener">Peer-Review PRO</a>
+    Part of the <a href="https://symbioticscholar.com" target="_blank" rel="noopener" style="color:#10b981;">Symbiotic Scholar</a> family of AI-powered academic tools.
+    Also see: <a href="https://www.doctordissertation.com" target="_blank" rel="noopener" style="color:#a78bfa;">Dr. Dissertation</a>
+    · <a href="https://peerreviewpro.com" target="_blank" rel="noopener" style="color:#2dd4bf;">Peer-Review PRO</a>
   </div>
 </footer>
+
+<!-- Legal Disclaimer Modal -->
+<div id="disclaimer-modal" onclick="if(event.target===this)closeDisclaimer()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(2,10,26,0.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#0e1e35;border:1px solid #1a2e4a;border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.6);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid #1a2e4a;">
+      <div>
+        <h2 style="color:#e2e8f0;font-size:17px;font-weight:700;margin:0;">Legal &amp; Accuracy Disclaimer</h2>
+        <p style="color:#94a3b8;font-size:12px;margin:4px 0 0;line-height:1.4;">Please read before relying on IRBWiz output for a real submission</p>
+      </div>
+      <button onclick="closeDisclaimer()" style="background:none;border:1px solid #1a2e4a;border-radius:8px;color:#94a3b8;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-left:12px;">✕</button>
+    </div>
+    <div style="padding:20px 24px 24px;">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:18px;">✅</span>
+            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">Regulatory Framework Is Accurate</h3>
+          </div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">The review categories (Exempt, Expedited, Full Board), CFR citations (e.g., 45 CFR 46.104(d), 45 CFR 46.110), and document templates are grounded in real federal regulations — the Common Rule (45 CFR 46) and the Belmont Report. The classification logic follows the actual statutory decision criteria used by IRBs nationwide.</p>
+        </div>
+        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:18px;">⚖️</span>
+            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">IRBs Have Final Authority</h3>
+          </div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">IRBs hold regulatory discretion in applying the Common Rule. Two IRBs reviewing the same protocol may reach different conclusions based on institutional policies, local context, or reviewer judgment. IRBWiz provides the most defensible classification based on the information you enter — it does not constitute a binding determination and cannot predict your institution's specific decision.</p>
+        </div>
+        <div style="background:#162236;border:1px solid #1a2e4a;border-left:3px solid #2c64a5;border-radius:10px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:18px;">📄</span>
+            <h3 style="color:#e2e8f0;font-size:14px;font-weight:700;margin:0;">Preparation Aid — Not IRB Approval</h3>
+          </div>
+          <p style="color:#94a3b8;font-size:13px;line-height:1.7;margin:0;">IRBWiz generates starting-point documents for IRB submission: protocol descriptions, consent forms, recruitment materials, and special forms. All generated documents must be reviewed by your institution's IRB and may be modified before or after submission. Use of this tool does not constitute IRB approval, guarantee approval, or substitute for consultation with your institution's IRB office.</p>
+        </div>
+      </div>
+      <p style="color:#64748b;font-size:11px;line-height:1.6;margin-top:18px;margin-bottom:0;border-top:1px solid #1a2e4a;padding-top:14px;">
+        IRBWiz is an AI-assisted preparation tool developed by <a href="https://symbioticscholar.com" target="_blank" rel="noopener" style="color:#10b981;">Symbiotic Scholar</a>. Always consult your institution's IRB office before submitting any research protocol. For questions, contact <a href="mailto:hello@symbioticscholar.com" style="color:#fbbf24;">hello@symbioticscholar.com</a>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDisclaimer() {
+  var m = document.getElementById('disclaimer-modal');
+  m.style.display = 'flex';
+  document.addEventListener('keydown', handleDisclaimerKey);
+}
+function closeDisclaimer() {
+  var m = document.getElementById('disclaimer-modal');
+  m.style.display = 'none';
+  document.removeEventListener('keydown', handleDisclaimerKey);
+}
+function handleDisclaimerKey(e) { if (e.key === 'Escape') closeDisclaimer(); }
+</script>
 
 
 </body>
