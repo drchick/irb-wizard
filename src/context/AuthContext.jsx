@@ -1,96 +1,104 @@
 /**
- * AuthContext.jsx
- *
- * Provides authentication state (Supabase) to the entire app.
- * Wrap <App> with <AuthProvider> in main.jsx.
+ * AuthContext.jsx — Supabase auth (Google OAuth + email/password)
  *
  * useAuth() returns:
- *   user            — Supabase User object or null
- *                     user.email
- *                     user.user_metadata.full_name
- *                     user.user_metadata.avatar_url
- *   loading         — true while initial session is resolving
- *   signInWithGoogle — triggers Supabase Google OAuth redirect
- *   signOut         — signs out, returns promise
- *   supabaseReady   — false if Supabase env vars are not configured
+ *   user              — Supabase User | null
+ *   loading           — true while resolving initial session
+ *   signInWithGoogle  — Google OAuth redirect
+ *   signInWithEmail   — email + password sign-in
+ *   signUpWithEmail   — create account with email + password
+ *   resetPassword     — send password-reset email
+ *   signOut
+ *   supabaseReady     — false if env vars missing
+ *   isAdmin           — true if user.email matches VITE_ADMIN_EMAIL
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase, supabaseConfigured } from '../supabase';
 
-// ─── Context ─────────────────────────────────────────────────────────────────
-
 const AuthContext = createContext(null);
-
-// ─── Provider ────────────────────────────────────────────────────────────────
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL ?? '';
 
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabaseConfigured || !supabase) {
-      setLoading(false);
-      return;
-    }
+    if (!supabaseConfigured || !supabase) { setLoading(false); return; }
 
-    // Hydrate session from localStorage on first load
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for sign-in / sign-out / token refresh events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
       }
     );
-
     return () => subscription.unsubscribe();
   }, []);
 
-  /**
-   * Redirects to Google OAuth via Supabase.
-   * After the user authenticates, Google redirects back to redirectTo
-   * (defaults to /wizard). Supabase stores the session automatically.
-   */
+  // ── Google OAuth (redirect flow) ────────────────────────────────────────────
   const signInWithGoogle = async (redirectTo) => {
-    if (!supabaseConfigured || !supabase) {
-      throw new Error(
-        'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.'
-      );
-    }
+    if (!supabase) throw new Error('Supabase is not configured.');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: redirectTo ?? `${window.location.origin}/wizard`,
-      },
+      options: { redirectTo: redirectTo ?? `${window.location.origin}/wizard` },
     });
     if (error) throw error;
-    // Browser will navigate away — no further action needed here
   };
 
+  // ── Email / password sign-in ─────────────────────────────────────────────────
+  const signInWithEmail = async (email, password) => {
+    if (!supabase) throw new Error('Supabase is not configured.');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data.user;
+  };
+
+  // ── Email / password sign-up ─────────────────────────────────────────────────
+  const signUpWithEmail = async (email, password) => {
+    if (!supabase) throw new Error('Supabase is not configured.');
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/wizard` },
+    });
+    if (error) throw error;
+    // data.user is set but session is null until email confirmed
+    return { user: data.user, needsConfirmation: !data.session };
+  };
+
+  // ── Password reset ───────────────────────────────────────────────────────────
+  const resetPassword = async (email) => {
+    if (!supabase) throw new Error('Supabase is not configured.');
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  };
+
+  // ── Sign out ─────────────────────────────────────────────────────────────────
   const signOut = async () => {
     if (supabase) await supabase.auth.signOut();
     setUser(null);
   };
 
+  const isAdmin = !!(user && ADMIN_EMAIL && user.email === ADMIN_EMAIL);
+
   return (
     <AuthContext.Provider value={{
-      user,
-      loading,
-      signInWithGoogle,
-      signOut,
+      user, loading,
+      signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, signOut,
       supabaseReady: supabaseConfigured,
+      isAdmin,
     }}>
       {children}
     </AuthContext.Provider>
   );
 }
-
-// ─── Hook ────────────────────────────────────────────────────────────────────
 
 export function useAuth() {
   const ctx = useContext(AuthContext);

@@ -1,20 +1,19 @@
 /**
- * Login.jsx — Sign-in page
+ * Login.jsx — Sign-in / Sign-up page
  *
- * Shows a centered card with Google Sign-In via Supabase OAuth.
- * Clicking "Continue with Google" redirects to Google, which redirects
- * back to /wizard after successful authentication.
- * Already-authenticated users are redirected to /wizard immediately.
- * Shows a graceful warning if Supabase is not yet configured.
+ * Modes:
+ *   signin  — email/password or Google
+ *   signup  — create account with email/password
+ *   forgot  — request password reset email
+ *   confirm — shown after sign-up (check your email)
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import IRBWizLogo from '../components/layout/IRBWizLogo';
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Eye, EyeOff, Mail, CheckCircle2 } from 'lucide-react';
 
-// Google "G" brand SVG (official brand colours, inline for no extra dep)
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -26,140 +25,240 @@ function GoogleIcon() {
   );
 }
 
-export default function Login() {
-  const { user, loading, signInWithGoogle, supabaseReady } = useAuth();
-  const navigate = useNavigate();
-  const [signingIn, setSigningIn] = useState(false);
-  const [error,     setError]     = useState('');
+function Spinner() {
+  return (
+    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+    </svg>
+  );
+}
 
-  // Already logged in → go straight to wizard
+export default function Login() {
+  const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, supabaseReady } = useAuth();
+  const navigate = useNavigate();
+
+  const [mode,      setMode]      = useState('signin'); // signin | signup | forgot | confirm
+  const [email,     setEmail]     = useState('');
+  const [password,  setPassword]  = useState('');
+  const [confirm,   setConfirm]   = useState('');
+  const [showPw,    setShowPw]    = useState(false);
+  const [busy,      setBusy]      = useState(false);
+  const [error,     setError]     = useState('');
+  const [info,      setInfo]      = useState('');
+
   useEffect(() => {
-    if (!loading && user) {
-      navigate('/wizard', { replace: true });
-    }
+    if (!loading && user) navigate('/wizard', { replace: true });
   }, [user, loading, navigate]);
 
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setSigningIn(true);
+  const reset = (nextMode) => { setError(''); setInfo(''); setMode(nextMode); };
+
+  // ── Google ──────────────────────────────────────────────────────────────────
+  const handleGoogle = async () => {
+    setError(''); setBusy(true);
+    try { await signInWithGoogle(); }
+    catch (err) { setError(err.message || 'Sign-in failed.'); setBusy(false); }
+  };
+
+  // ── Email sign-in ───────────────────────────────────────────────────────────
+  const handleSignIn = async (e) => {
+    e.preventDefault(); setError(''); setBusy(true);
     try {
-      await signInWithGoogle();
-      // Browser is redirecting to Google — no navigate() needed here
+      await signInWithEmail(email, password);
+      navigate('/wizard', { replace: true });
     } catch (err) {
-      setError(err.message || 'Sign-in failed. Please try again.');
-      setSigningIn(false);
+      setError(err.message || 'Sign-in failed. Check your email and password.');
+      setBusy(false);
     }
+  };
+
+  // ── Email sign-up ───────────────────────────────────────────────────────────
+  const handleSignUp = async (e) => {
+    e.preventDefault(); setError('');
+    if (password !== confirm) { setError('Passwords do not match.'); return; }
+    if (password.length < 8)  { setError('Password must be at least 8 characters.'); return; }
+    setBusy(true);
+    try {
+      const { needsConfirmation } = await signUpWithEmail(email, password);
+      if (needsConfirmation) { setMode('confirm'); }
+      else { navigate('/wizard', { replace: true }); }
+    } catch (err) {
+      setError(err.message || 'Sign-up failed. Please try again.');
+    } finally { setBusy(false); }
+  };
+
+  // ── Forgot password ─────────────────────────────────────────────────────────
+  const handleForgot = async (e) => {
+    e.preventDefault(); setError(''); setBusy(true);
+    try {
+      await resetPassword(email);
+      setInfo('Check your email for a password reset link.');
+    } catch (err) {
+      setError(err.message || 'Could not send reset email.');
+    } finally { setBusy(false); }
   };
 
   if (loading) return null;
 
-  return (
-    <div className="min-h-screen bg-navy-900 flex flex-col items-center justify-center px-4 py-12">
-
-      {/* Card */}
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8">
-
-        {/* Logo */}
-        <div className="flex justify-center mb-7">
-          <IRBWizLogo size={44} variant="full" theme="light" />
-        </div>
-
-        <h1 className="text-xl font-bold text-navy-900 text-center mb-1">Sign in to IRBWiz</h1>
-        <p className="text-sm text-slate-500 text-center mb-7">Access your protocols and documents</p>
-
-        {/* Supabase not configured warning */}
-        {!supabaseReady && (
-          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5 text-xs text-amber-800">
-            <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-500" />
-            <span>
-              Supabase is not configured. Add{' '}
-              <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_URL</code>{' '}
-              and{' '}
-              <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_ANON_KEY</code>{' '}
-              to your <code className="font-mono bg-amber-100 px-1 rounded">.env</code> file
-              to enable sign-in.
-            </span>
-          </div>
-        )}
-
-        {/* Google Sign-In button */}
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={signingIn || !supabaseReady}
-          className="w-full flex items-center justify-center gap-3 border border-slate-300 rounded-lg py-3 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {signingIn ? (
-            <>
-              <svg className="animate-spin h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-              </svg>
-              Redirecting to Google…
-            </>
-          ) : (
-            <>
-              <GoogleIcon />
-              Continue with Google
-            </>
-          )}
-        </button>
-
-        {/* Error */}
-        {error && (
-          <p className="mt-3 text-xs text-center text-red-600 flex items-center justify-center gap-1">
-            <AlertTriangle size={13} /> {error}
+  // ── Confirm email state ─────────────────────────────────────────────────────
+  if (mode === 'confirm') {
+    return (
+      <div className="min-h-screen bg-navy-900 flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 text-center">
+          <CheckCircle2 size={48} className="text-emerald-500 mx-auto mb-4" />
+          <h1 className="text-xl font-bold text-navy-900 mb-2">Check your email</h1>
+          <p className="text-sm text-slate-500 mb-6">
+            We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then come back to sign in.
           </p>
-        )}
-
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-3">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs text-slate-400">more options coming soon</span>
-          <div className="flex-1 h-px bg-slate-200" />
-        </div>
-
-        {/* Placeholder: email/password (grayed out) */}
-        <div className="space-y-2 opacity-40 pointer-events-none select-none">
-          <input
-            type="email"
-            placeholder="Email address"
-            className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm placeholder-slate-400"
-            disabled
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm placeholder-slate-400"
-            disabled
-          />
-          <button
-            className="w-full bg-navy-700 text-white rounded-lg py-2.5 text-sm font-medium"
-            disabled
-          >
-            Sign in with Email
+          <button onClick={() => reset('signin')}
+            className="text-sm text-gold-600 hover:text-gold-500 font-medium">
+            ← Back to sign in
           </button>
         </div>
       </div>
+    );
+  }
 
-      {/* Back to home */}
-      <Link
-        to="/"
-        className="mt-6 flex items-center gap-1.5 text-slate-400 hover:text-slate-200 text-sm transition-colors"
-      >
+  return (
+    <div className="min-h-screen bg-navy-900 flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8">
+
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <IRBWizLogo size={44} variant="full" theme="light" />
+        </div>
+
+        {/* Mode tabs */}
+        <div className="flex rounded-lg bg-slate-100 p-1 mb-6">
+          <button
+            onClick={() => reset('signin')}
+            className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${mode === 'signin' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Sign In
+          </button>
+          <button
+            onClick={() => reset('signup')}
+            className={`flex-1 text-sm py-1.5 rounded-md font-medium transition-colors ${mode === 'signup' ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            Create Account
+          </button>
+        </div>
+
+        {/* Supabase warning */}
+        {!supabaseReady && (
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
+            <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-500" />
+            <span>Supabase is not configured. Add <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_URL</code> and <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to your <code className="font-mono bg-amber-100 px-1 rounded">.env</code> file.</span>
+          </div>
+        )}
+
+        {/* Google button */}
+        {mode !== 'forgot' && (
+          <>
+            <button
+              onClick={handleGoogle}
+              disabled={busy || !supabaseReady}
+              className="w-full flex items-center justify-center gap-3 border border-slate-300 rounded-lg py-2.5 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mb-4">
+              {busy ? <Spinner /> : <GoogleIcon />}
+              {busy ? 'Redirecting…' : 'Continue with Google'}
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs text-slate-400">or</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
+          </>
+        )}
+
+        {/* Sign In form */}
+        {mode === 'signin' && (
+          <form onSubmit={handleSignIn} className="space-y-3">
+            <input type="email" placeholder="Email address" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+            <div className="relative">
+              <input type={showPw ? 'text' : 'password'} placeholder="Password" required value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full border border-slate-300 rounded-lg py-2.5 px-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+              <button type="button" onClick={() => setShowPw(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+            <div className="text-right">
+              <button type="button" onClick={() => reset('forgot')}
+                className="text-xs text-slate-400 hover:text-slate-600">
+                Forgot password?
+              </button>
+            </div>
+            {error && <p className="text-xs text-red-600 flex items-center gap-1"><AlertTriangle size={12}/>{error}</p>}
+            <button type="submit" disabled={busy || !supabaseReady}
+              className="w-full bg-navy-800 hover:bg-navy-700 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors">
+              {busy ? 'Signing in…' : 'Sign In with Email'}
+            </button>
+          </form>
+        )}
+
+        {/* Sign Up form */}
+        {mode === 'signup' && (
+          <form onSubmit={handleSignUp} className="space-y-3">
+            <input type="email" placeholder="Email address" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+            <div className="relative">
+              <input type={showPw ? 'text' : 'password'} placeholder="Password (min 8 characters)" required value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full border border-slate-300 rounded-lg py-2.5 px-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+              <button type="button" onClick={() => setShowPw(p => !p)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+            <input type="password" placeholder="Confirm password" required value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+            {error && <p className="text-xs text-red-600 flex items-center gap-1"><AlertTriangle size={12}/>{error}</p>}
+            <button type="submit" disabled={busy || !supabaseReady}
+              className="w-full bg-navy-800 hover:bg-navy-700 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors">
+              {busy ? 'Creating account…' : 'Create Account'}
+            </button>
+            <p className="text-xs text-slate-400 text-center">
+              By signing up you agree to our{' '}
+              <a href="https://irbwiz.help/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</a>
+              {' '}and{' '}
+              <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>
+            </p>
+          </form>
+        )}
+
+        {/* Forgot password form */}
+        {mode === 'forgot' && (
+          <form onSubmit={handleForgot} className="space-y-3">
+            <h2 className="text-base font-semibold text-navy-900 text-center">Reset your password</h2>
+            <p className="text-xs text-slate-500 text-center">Enter your email and we'll send you a reset link.</p>
+            <input type="email" placeholder="Email address" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+            {error && <p className="text-xs text-red-600 flex items-center gap-1"><AlertTriangle size={12}/>{error}</p>}
+            {info  && <p className="text-xs text-emerald-600 flex items-center gap-1"><Mail size={12}/>{info}</p>}
+            <button type="submit" disabled={busy || !supabaseReady}
+              className="w-full bg-navy-800 hover:bg-navy-700 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors">
+              {busy ? 'Sending…' : 'Send Reset Link'}
+            </button>
+            <button type="button" onClick={() => reset('signin')}
+              className="w-full text-sm text-slate-400 hover:text-slate-600">
+              ← Back to sign in
+            </button>
+          </form>
+        )}
+      </div>
+
+      <Link to="/" className="mt-6 flex items-center gap-1.5 text-slate-400 hover:text-slate-200 text-sm transition-colors">
         <ArrowLeft size={14} /> Back to Home
       </Link>
 
-      {/* Suite branding */}
-      <p className="mt-8 text-xs text-slate-600">
+      <p className="mt-6 text-xs text-slate-600">
         Part of the{' '}
-        <a
-          href="https://symbioticscholar.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gold-400 hover:text-gold-300 underline"
-        >
-          Symbiotic Scholar Suite
-        </a>
+        <a href="https://symbioticscholar.com" target="_blank" rel="noopener noreferrer"
+          className="text-gold-400 hover:text-gold-300 underline">Symbiotic Scholar Suite</a>
       </p>
     </div>
   );
