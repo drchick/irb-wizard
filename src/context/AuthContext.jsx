@@ -10,14 +10,14 @@
  *   resetPassword     — send password-reset email
  *   signOut
  *   supabaseReady     — false if env vars missing
- *   isAdmin           — true if user.email matches VITE_ADMIN_EMAIL
+ *   isAdmin           — true if user.email matches NEXT_PUBLIC_ADMIN_EMAIL
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase, supabaseConfigured } from '../supabase';
 
 const AuthContext = createContext(null);
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL ?? '';
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '';
 
 export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null);

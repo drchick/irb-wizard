@@ -1,13 +1,10 @@
-// Shared logic for IRB AI endpoints (used by both local dev server and Vercel serverless functions)
-import Anthropic from '@anthropic-ai/sdk';
-
-// ── Anthropic client ──────────────────────────────────────────────────────────
-export function getClient() {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not set in environment');
-  }
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
+/**
+ * ai-helpers.js — Shared AI utilities for Next.js API routes
+ *
+ * Used by:
+ *   pages/api/ai-review.js
+ *   pages/api/ai-comprehensive.js
+ */
 
 // ── Robust JSON extractor ─────────────────────────────────────────────────────
 export function extractJSON(raw) {
@@ -60,7 +57,7 @@ OUTPUT SCHEMA (strict JSON, no markdown fences):
 
 Return 3-7 clarifying questions. Prioritize high-importance ones first.`;
 
-// ── Per-section prompt builders ───────────────────────────────────────────────
+// ── Per-section prompt builder ────────────────────────────────────────────────
 export function buildPerSectionPrompt(section, sectionData, formDataSummary) {
   const ctx = `STUDY CONTEXT:
 - Study title: ${formDataSummary.studyTitle || '(not yet provided)'}

@@ -1,5 +1,5 @@
 /**
- * Login.jsx — Sign-in / Sign-up page
+ * login.jsx — Sign-in / Sign-up page (Next.js)
  *
  * Modes:
  *   signin  — email/password or Google
@@ -9,7 +9,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import IRBWizLogo from '../components/layout/IRBWizLogo';
 import { AlertTriangle, ArrowLeft, Eye, EyeOff, Mail, CheckCircle2 } from 'lucide-react';
@@ -36,7 +37,7 @@ function Spinner() {
 
 export default function Login() {
   const { user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, supabaseReady } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [mode,      setMode]      = useState('signin'); // signin | signup | forgot | confirm
   const [email,     setEmail]     = useState('');
@@ -48,8 +49,8 @@ export default function Login() {
   const [info,      setInfo]      = useState('');
 
   useEffect(() => {
-    if (!loading && user) navigate('/wizard', { replace: true });
-  }, [user, loading, navigate]);
+    if (!loading && user) router.replace('/wizard');
+  }, [user, loading, router]);
 
   const reset = (nextMode) => { setError(''); setInfo(''); setMode(nextMode); };
 
@@ -65,7 +66,7 @@ export default function Login() {
     e.preventDefault(); setError(''); setBusy(true);
     try {
       await signInWithEmail(email, password);
-      navigate('/wizard', { replace: true });
+      router.replace('/wizard');
     } catch (err) {
       setError(err.message || 'Sign-in failed. Check your email and password.');
       setBusy(false);
@@ -81,7 +82,7 @@ export default function Login() {
     try {
       const { needsConfirmation } = await signUpWithEmail(email, password);
       if (needsConfirmation) { setMode('confirm'); }
-      else { navigate('/wizard', { replace: true }); }
+      else { router.replace('/wizard'); }
     } catch (err) {
       setError(err.message || 'Sign-up failed. Please try again.');
     } finally { setBusy(false); }
@@ -146,7 +147,7 @@ export default function Login() {
         {!supabaseReady && (
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs text-amber-800">
             <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-500" />
-            <span>Supabase is not configured. Add <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_URL</code> and <code className="font-mono bg-amber-100 px-1 rounded">VITE_SUPABASE_ANON_KEY</code> to your <code className="font-mono bg-amber-100 px-1 rounded">.env</code> file.</span>
+            <span>Supabase is not configured. Add <code className="font-mono bg-amber-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="font-mono bg-amber-100 px-1 rounded">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your <code className="font-mono bg-amber-100 px-1 rounded">.env.local</code> file.</span>
           </div>
         )}
 
@@ -251,7 +252,7 @@ export default function Login() {
         )}
       </div>
 
-      <Link to="/" className="mt-6 flex items-center gap-1.5 text-slate-400 hover:text-slate-200 text-sm transition-colors">
+      <Link href="/" className="mt-6 flex items-center gap-1.5 text-slate-400 hover:text-slate-200 text-sm transition-colors">
         <ArrowLeft size={14} /> Back to Home
       </Link>
 

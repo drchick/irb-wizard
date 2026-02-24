@@ -1,13 +1,22 @@
 /**
  * AdminRoute.jsx — Protects /admin from non-admin users.
- * Admin is identified by VITE_ADMIN_EMAIL env var.
+ * Admin is identified by NEXT_PUBLIC_ADMIN_EMAIL env var.
  */
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 import IRBWizLogo from '../layout/IRBWizLogo';
 
 export default function AdminRoute({ children }) {
   const { user, loading, isAdmin } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user)    router.replace('/login');
+      else if (!isAdmin) router.replace('/wizard');
+    }
+  }, [user, loading, isAdmin, router]);
 
   if (loading) {
     return (
@@ -17,8 +26,7 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  if (!user)    return <Navigate to="/login"  replace />;
-  if (!isAdmin) return <Navigate to="/wizard" replace />;
+  if (!user || !isAdmin) return null;
 
   return children;
 }

@@ -1,16 +1,14 @@
 /**
- * Admin.jsx — Admin dashboard (admin email only via AdminRoute guard)
+ * admin.jsx — Admin dashboard (Next.js)
  *
  * Tabs: Overview | Users | Usage | Purchases
- *
- * Requires Cloudflare env vars:
- *   ADMIN_EMAIL, SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
  */
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAuth }     from '../context/AuthContext';
 import { supabase }    from '../supabase';
 import IRBWizLogo      from '../components/layout/IRBWizLogo';
+import AdminRoute      from '../components/auth/AdminRoute';
 import {
   LayoutDashboard, Users, Activity, ShoppingBag,
   RefreshCw, LogOut, TrendingUp, Zap, AlertCircle,
@@ -224,7 +222,7 @@ function SqlSetupNote() {
           </pre>
           <p className="text-slate-500 text-xs">
             Also add <code className="bg-navy-900 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> to your
-            Cloudflare Worker environment variables (Settings → Variables & Secrets).
+            Vercel environment variables (Settings → Environment Variables).
           </p>
         </div>
       )}
@@ -369,14 +367,14 @@ function PurchasesTab() {
 }
 
 // ── Root Admin component ───────────────────────────────────────────────────────
-export default function Admin() {
+function AdminDashboard() {
   const { signOut }     = useAuth();
-  const navigate        = useNavigate();
+  const router          = useRouter();
   const [tab, setTab]   = useState('overview');
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    router.replace('/login');
   };
 
   return (
@@ -425,5 +423,13 @@ export default function Admin() {
         {tab === 'purchases' && <PurchasesTab />}
       </main>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <AdminRoute>
+      <AdminDashboard />
+    </AdminRoute>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useWizard, STEPS } from '../../context/WizardContext';
 import { useAuth } from '../../context/AuthContext';
 import { StepNav } from './StepNav';
@@ -32,7 +32,7 @@ const STEP_COMPONENTS = {
 export function WizardShell() {
   const { currentStep, nextStep, prevStep, reviewResult, consistencyIssues, formData } = useWizard();
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const StepComponent = STEP_COMPONENTS[currentStep];
   const errors   = getIssueCount(consistencyIssues, 'error');
   const warnings = getIssueCount(consistencyIssues, 'warning');
@@ -40,7 +40,7 @@ export function WizardShell() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    router.replace('/login');
   };
 
   // ── Step completion soft warning ─────────────────────────────────────────

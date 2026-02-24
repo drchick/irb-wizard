@@ -7,12 +7,20 @@
  * - If signed in → renders children
  */
 
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 import IRBWizLogo from '../layout/IRBWizLogo';
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login');
+    }
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -29,9 +37,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return null;
 
   return children;
 }

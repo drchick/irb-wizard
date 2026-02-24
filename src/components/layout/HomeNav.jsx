@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
 import IRBWizLogo from './IRBWizLogo';
 import { useAuth } from '../../context/AuthContext';
 import { Menu, X } from 'lucide-react';
@@ -20,7 +20,6 @@ const NAV_LINKS = [
 
 export default function HomeNav() {
   const { user } = useAuth();
-  const navigate  = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -28,7 +27,7 @@ export default function HomeNav() {
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-6">
 
         {/* ── Logo ── */}
-        <Link to="/" className="flex items-center shrink-0">
+        <Link href="/" className="flex items-center shrink-0">
           <IRBWizLogo size={32} variant="full" theme="dark" />
         </Link>
 
@@ -60,17 +59,17 @@ export default function HomeNav() {
                   className="w-7 h-7 rounded-full border border-slate-500"
                 />
               )}
-              <Link to="/wizard" className="btn-primary text-sm py-1.5 px-4">
+              <Link href="/wizard" className="btn-primary text-sm py-1.5 px-4">
                 Go to Wizard →
               </Link>
             </>
           ) : (
             <>
-              <Link to="/login"
+              <Link href="/login"
                 className="text-sm text-slate-300 hover:text-white transition-colors px-2">
                 Sign In
               </Link>
-              <Link to="/login"
+              <Link href="/login"
                 className="btn-primary text-sm py-1.5 px-4">
                 Get Started →
               </Link>
@@ -100,15 +99,15 @@ export default function HomeNav() {
           ))}
           <div className="border-t border-navy-700 pt-3 flex flex-col gap-2">
             {user ? (
-              <Link to="/wizard" className="btn-primary text-sm text-center py-2"
+              <Link href="/wizard" className="btn-primary text-sm text-center py-2"
                 onClick={() => setMobileOpen(false)}>
                 Go to Wizard →
               </Link>
             ) : (
               <>
-                <Link to="/login" className="text-sm text-slate-300 hover:text-white py-1"
+                <Link href="/login" className="text-sm text-slate-300 hover:text-white py-1"
                   onClick={() => setMobileOpen(false)}>Sign In</Link>
-                <Link to="/login" className="btn-primary text-sm text-center py-2"
+                <Link href="/login" className="btn-primary text-sm text-center py-2"
                   onClick={() => setMobileOpen(false)}>Get Started →</Link>
               </>
             )}
