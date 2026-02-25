@@ -2,10 +2,11 @@
  * Footer — Symbiotic Scholar Suite brand footer for IRBWiz
  * 3-column layout: Brand | Resources | Symbiotic Scholar
  *
- * Bottom bar includes modal pop-outs for:
- *   Privacy Policy · Terms of Service · Legal Disclaimer
+ * Bottom bar: /privacy and /terms link to dedicated pages;
+ *   Legal Disclaimer remains a modal pop-out.
  */
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import IRBWizLogo from './IRBWizLogo';
 
 const DARKER  = '#0a1628';
@@ -378,8 +379,14 @@ export default function Footer() {
         }}>
           <span>© {year} IRBWiz by Symbiotic Scholar. All rights reserved.</span>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-            <BottomBarButton label="Privacy Policy"   onClick={() => setModal('privacy')} />
-            <BottomBarButton label="Terms of Service" onClick={() => setModal('terms')} />
+            <Link href="/privacy" style={{ fontSize: 12, color: SOFT, textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.target.style.color = MUTED}
+              onMouseLeave={e => e.target.style.color = SOFT}
+            >Privacy Policy</Link>
+            <Link href="/terms" style={{ fontSize: 12, color: SOFT, textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => e.target.style.color = MUTED}
+              onMouseLeave={e => e.target.style.color = SOFT}
+            >Terms of Service</Link>
             <BottomBarButton label="Legal Disclaimer" onClick={() => setModal('disclaimer')} />
           </div>
         </div>
