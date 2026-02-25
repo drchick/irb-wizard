@@ -14,7 +14,7 @@ async function verifyAdmin(req) {
   const sb = getAdminClient();
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
-  if (user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) return null;
+  if (user.email?.trim() !== (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim()) return null;
   return user;
 }
 

@@ -9,7 +9,7 @@ async function verifyAdmin(req) {
   if (!authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.slice(7);
   const { data: { user }, error } = await getAdminClient().auth.getUser(token);
-  if (error || !user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) return null;
+  if (error || !user || user.email?.trim() !== (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim()) return null;
   return user;
 }
 

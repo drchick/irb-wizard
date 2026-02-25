@@ -13,7 +13,7 @@ async function verifyAdmin(req) {
   if (!token) return null;
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
-  return user.email === (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '') ? user : null;
+  return user.email?.trim() === (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? '').trim() ? user : null;
 }
 
 export default async function handler(req, res) {
