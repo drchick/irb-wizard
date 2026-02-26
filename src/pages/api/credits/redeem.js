@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
   // ── Check if already redeemed by this user ────────────────────────────────
   const { data: existing } = await sb
-    .from('promo_redemptions')
+    .from('irb_promo_redemptions')
     .select('id')
     .eq('user_id', user.id)
     .eq('code', rawCode)
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
   // ── Look up the promo code ─────────────────────────────────────────────────
   const { data: promo, error: promoErr } = await sb
-    .from('promo_codes')
+    .from('irb_promo_codes')
     .select('*')
     .eq('code', rawCode)
     .single();
@@ -52,11 +52,11 @@ export default async function handler(req, res) {
 
   // ── Redeem: increment uses + record redemption + add credits ──────────────
   await sb
-    .from('promo_codes')
+    .from('irb_promo_codes')
     .update({ uses: promo.uses + 1 })
     .eq('id', promo.id);
 
-  await sb.from('promo_redemptions').insert({
+  await sb.from('irb_promo_redemptions').insert({
     user_id: user.id,
     code: rawCode,
     credits: promo.credits,

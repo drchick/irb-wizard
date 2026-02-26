@@ -24,10 +24,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const { data, error } = await sb
-      .from('promo_codes')
-      .select('*, promo_redemptions(count)')
+      .from('irb_promo_codes')
+      .select('*, irb_promo_redemptions(count)')
       .order('created_at', { ascending: false });
-    if (error) return res.status(200).json({ codes: [], note: 'promo_codes table not set up yet.' });
+    if (error) return res.status(200).json({ codes: [], note: 'irb_promo_codes table not set up yet.' });
     return res.status(200).json({ codes: data ?? [] });
   }
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'code and credits are required.' });
     }
     const { data, error } = await sb
-      .from('promo_codes')
+      .from('irb_promo_codes')
       .insert({
         code:      code.trim().toUpperCase(),
         credits:   parseInt(credits),
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     const { id } = req.query;
     if (!id) return res.status(400).json({ error: 'id required' });
-    const { error } = await sb.from('promo_codes').delete().eq('id', id);
+    const { error } = await sb.from('irb_promo_codes').delete().eq('id', id);
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({ ok: true });
   }
