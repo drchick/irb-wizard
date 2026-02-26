@@ -69,6 +69,62 @@ export default function PrivacyPolicy() {
               policy. If you do not agree, please do not use IRBWiz.
             </div>
 
+            {/* ── Privacy at a Glance ─────────────────────────────────────── */}
+            <div className="bg-navy-800/50 border border-navy-700 rounded-2xl p-6 mb-10">
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-5">
+                ⊕ Your Privacy at a Glance
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+
+                <div>
+                  <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">✓ What we use your data for</p>
+                  <ul className="space-y-1.5 text-xs text-slate-400">
+                    <li>• Save your protocol drafts and let you return to them</li>
+                    <li>• Generate AI-powered reviews (opt-in, costs credits)</li>
+                    <li>• Process credit purchases securely via Stripe</li>
+                    <li>• Send account and receipt emails via Resend</li>
+                    <li>• Improve the wizard and diagnose technical errors</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-2">✗ What we NEVER do</p>
+                  <ul className="space-y-1.5 text-xs text-slate-400">
+                    <li>• Sell, rent, or trade your personal data</li>
+                    <li>• Store your credit card number or CVV</li>
+                    <li>• Share your protocol content with other users</li>
+                    <li>• Use your content to train AI models</li>
+                    <li>• Use advertising or cross-site tracking scripts</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">🔒 How we protect your data</p>
+                  <ul className="space-y-1.5 text-xs text-slate-400">
+                    <li>• TLS encryption for all data in transit</li>
+                    <li>• AES-256 encryption at rest (AWS/Supabase)</li>
+                    <li>• Row-level security — your data is yours alone</li>
+                    <li>• API keys server-side only, never in the browser</li>
+                    <li>• Stripe webhook signature verification on payments</li>
+                  </ul>
+                </div>
+
+              </div>
+              <div className="border-t border-navy-700 pt-4">
+                <p className="text-xs font-semibold text-gold-400 uppercase tracking-wider mb-2">👤 Your rights — always available, no questions asked</p>
+                <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-400 mb-3">
+                  <span><strong className="text-slate-300">Access</strong> — get a copy of your data</span>
+                  <span><strong className="text-slate-300">Correct</strong> — update anything</span>
+                  <span><strong className="text-slate-300">Delete</strong> — full removal within 30 days</span>
+                  <span><strong className="text-slate-300">Export</strong> — portable format</span>
+                  <span><strong className="text-slate-300">Opt out of AI</strong> — AI reviews are always opt-in</span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Email <a href="mailto:hello@symbioticscholar.com" className="text-gold-400 hover:text-gold-300 underline">hello@symbioticscholar.com</a> — we respond within 30 days.
+                </p>
+              </div>
+            </div>
+
             <Section number="1" title="Information We Collect">
               <Sub title="Account Information">
                 <p>When you register, we collect your name, email address, and password (bcrypt-hashed — never stored in plain text). We also record your role (researcher, faculty, student) and institutional affiliation if provided.</p>

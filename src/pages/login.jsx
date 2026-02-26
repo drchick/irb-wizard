@@ -47,12 +47,13 @@ export default function Login() {
   const [busy,      setBusy]      = useState(false);
   const [error,     setError]     = useState('');
   const [info,      setInfo]      = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (!loading && user) router.replace('/wizard');
   }, [user, loading, router]);
 
-  const reset = (nextMode) => { setError(''); setInfo(''); setMode(nextMode); };
+  const reset = (nextMode) => { setError(''); setInfo(''); setTermsAccepted(false); setMode(nextMode); };
 
   // ── Google ──────────────────────────────────────────────────────────────────
   const handleGoogle = async () => {
@@ -78,6 +79,7 @@ export default function Login() {
     e.preventDefault(); setError('');
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     if (password.length < 8)  { setError('Password must be at least 8 characters.'); return; }
+    if (!termsAccepted) { setError('Please read and accept the Terms of Service and Privacy Policy to continue.'); return; }
     setBusy(true);
     try {
       const { needsConfirmation, user: newUser } = await signUpWithEmail(email, password);
@@ -207,17 +209,26 @@ export default function Login() {
             <input type="password" placeholder="Confirm password" required value={confirm}
               onChange={e => setConfirm(e.target.value)}
               className="w-full border border-slate-300 rounded-lg py-2.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-400" />
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={e => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-slate-300 accent-navy-800 cursor-pointer shrink-0"
+              />
+              <span className="text-xs text-slate-500 leading-relaxed">
+                I have read and agree to the{' '}
+                <Link href="/terms" className="text-navy-700 underline hover:text-navy-900" target="_blank" rel="noopener noreferrer">Terms of Service</Link>
+                {' '}and{' '}
+                <Link href="/privacy" className="text-navy-700 underline hover:text-navy-900" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
+                . I understand how my data is collected, stored, and used.
+              </span>
+            </label>
             {error && <p className="text-xs text-red-600 flex items-center gap-1"><AlertTriangle size={12}/>{error}</p>}
-            <button type="submit" disabled={busy || !supabaseReady}
+            <button type="submit" disabled={busy || !supabaseReady || !termsAccepted}
               className="w-full bg-navy-800 hover:bg-navy-700 text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-50 transition-colors">
               {busy ? 'Creating account…' : 'Create Account'}
             </button>
-            <p className="text-xs text-slate-400 text-center">
-              By signing up you agree to our{' '}
-              <a href="https://irbwiz.help/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms</a>
-              {' '}and{' '}
-              <a href="https://irbwiz.help/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>
-            </p>
           </form>
         )}
 
