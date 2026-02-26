@@ -14,7 +14,7 @@ import {
   LayoutDashboard, Users, Activity, ShoppingBag,
   RefreshCw, LogOut, TrendingUp, Zap, AlertCircle,
   Code2, Mail, MailOpen, Circle,
-  Tag, Plus, Trash2,
+  Tag, Plus, Trash2, Gift,
 } from 'lucide-react';
 
 // ── Shared fetch helper (sends Supabase session token) ─────────────────────────
@@ -94,6 +94,87 @@ function SectionHeader({ title, sub, onRefresh }) {
   );
 }
 
+// ── Grant Credits Modal ────────────────────────────────────────────────────────
+function GrantCreditsModal({ user, onClose }) {
+  const [amount, setAmount]       = useState('5');
+  const [loading, setLoad]        = useState(false);
+  const [error, setError]         = useState('');
+  const [newBalance, setNewBalance] = useState(null);
+
+  const handleGrant = async () => {
+    setLoad(true); setError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token ?? '';
+      const res = await fetch('/api/admin/credits', {
+        method:  'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ user_id: user.id, amount: parseInt(amount, 10) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Failed to grant credits');
+      setNewBalance(data.credits);
+    } catch (e) { setError(e.message); }
+    finally { setLoad(false); }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-navy-800 border border-navy-600 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+          <Gift size={18} className="text-gold-400" /> Grant Credits
+        </h3>
+        <p className="text-sm text-slate-400 mb-5 break-all">{user.email}</p>
+
+        {newBalance !== null ? (
+          <div className="text-center py-4 space-y-3">
+            <p className="text-emerald-400 font-bold text-lg">✓ Credits granted!</p>
+            <p className="text-slate-400 text-sm">
+              New balance: <span className="text-white font-bold">{newBalance} credits</span>
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full bg-navy-700 hover:bg-navy-600 text-white rounded-lg py-2 text-sm transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <label className="block text-xs text-slate-400 mb-1.5">Credits to Add</label>
+              <input
+                type="number" min="1" max="500" value={amount}
+                onChange={e => setAmount(e.target.value)}
+                className="w-full bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-gold-400"
+              />
+            </div>
+            {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-navy-700 hover:bg-navy-600 text-white rounded-lg py-2 text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGrant}
+                disabled={loading || !amount || parseInt(amount, 10) < 1}
+                className="flex-1 bg-gold-500 hover:bg-gold-400 disabled:opacity-60 text-navy-900 font-bold rounded-lg py-2 text-sm transition-colors"
+              >
+                {loading ? 'Granting…' : `Grant ${amount || '?'} Credits`}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Date formatter ─────────────────────────────────────────────────────────────
 function fmtDate(iso) {
   if (!iso) return '—';
@@ -103,7 +184,7 @@ function fmtDate(iso) {
 }
 
 // ── Users table ────────────────────────────────────────────────────────────────
-function UserTable({ users, compact = false }) {
+function UserTable({ users, compact = false, onGrant }) {
   if (!users.length) {
     return <p className="text-slate-500 text-sm py-6 text-center">No users found.</p>;
   }
@@ -117,6 +198,7 @@ function UserTable({ users, compact = false }) {
             <th className="text-left px-4 py-3">Provider</th>
             <th className="text-left px-4 py-3">Signed Up</th>
             {!compact && <th className="text-left px-4 py-3">Last Sign In</th>}
+            {!compact && onGrant && <th className="px-4 py-3"></th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-navy-700">
@@ -142,6 +224,16 @@ function UserTable({ users, compact = false }) {
                 <td className="px-4 py-3 text-slate-400">{fmtDate(u.created_at)}</td>
                 {!compact && (
                   <td className="px-4 py-3 text-slate-400">{fmtDate(u.last_sign_in_at)}</td>
+                )}
+                {!compact && onGrant && (
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => onGrant(u)}
+                      className="flex items-center gap-1 text-xs text-gold-400 hover:text-gold-300 border border-gold-400/30 hover:border-gold-400 rounded-lg px-2 py-1 transition-colors"
+                    >
+                      <Gift size={11} /> Grant
+                    </button>
+                  </td>
                 )}
               </tr>
             );
@@ -290,10 +382,11 @@ function OverviewTab() {
 
 // ── Tab: Users ─────────────────────────────────────────────────────────────────
 function UsersTab() {
-  const [users, setUsers]   = useState([]);
-  const [loading, setLoad]  = useState(true);
-  const [error, setError]   = useState('');
-  const [search, setSearch] = useState('');
+  const [users, setUsers]             = useState([]);
+  const [loading, setLoad]            = useState(true);
+  const [error, setError]             = useState('');
+  const [search, setSearch]           = useState('');
+  const [grantTarget, setGrantTarget] = useState(null);
 
   const load = useCallback(async () => {
     setLoad(true); setError('');
@@ -312,6 +405,9 @@ function UsersTab() {
 
   return (
     <div className="space-y-4">
+      {grantTarget && (
+        <GrantCreditsModal user={grantTarget} onClose={() => setGrantTarget(null)} />
+      )}
       <SectionHeader
         title="Users"
         sub={`${users.length} total account${users.length !== 1 ? 's' : ''}`}
@@ -323,7 +419,9 @@ function UsersTab() {
         placeholder="Search by email or name…"
         className="w-full max-w-sm bg-navy-800 border border-navy-600 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-gold-400"
       />
-      {loading ? <Spinner /> : error ? <ErrorMsg msg={error} /> : <UserTable users={filtered} />}
+      {loading ? <Spinner /> : error ? <ErrorMsg msg={error} /> : (
+        <UserTable users={filtered} onGrant={setGrantTarget} />
+      )}
     </div>
   );
 }
