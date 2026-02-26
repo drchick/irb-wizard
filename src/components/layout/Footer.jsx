@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import IRBWizLogo from './IRBWizLogo';
+import SymbioticScholarLogo from './SymbioticScholarLogo';
 
 const DARKER  = '#0a1628';
 const BORDER  = '#1a2e4a';
@@ -354,9 +355,9 @@ export default function Footer() {
 
           {/* Suite column */}
           <div>
-            <h4 style={{ fontSize: 13, fontWeight: 700, color: BRIGHT, marginBottom: 14 }}>
-              Symbiotic Scholar
-            </h4>
+            <a href="https://symbioticscholar.com" target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginBottom: 14 }}>
+              <SymbioticScholarLogo height={40} />
+            </a>
             <FooterLink href="https://www.doctordissertation.com" external label="Dr. Dissertation" color={PURPLE} />
             <FooterLink href="https://peerreviewpro.com" external label="Peer-Review PRO" color={TEAL} />
             <FooterLink href="https://irbwiz.help" external label="IRBWiz" color={GOLD} />
